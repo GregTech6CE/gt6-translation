@@ -15,7 +15,7 @@
     dateZhCN,
     zhCN,
   } from 'naive-ui';
-  import { computed, ref } from 'vue';
+  import { computed, defineAsyncComponent, ref } from 'vue';
   import ConfigPanel from './components/ConfigPanel.vue';
   import EntryPanel from './components/EntryPanel.vue';
   import IoPanel from './components/IoPanel.vue';
@@ -23,8 +23,13 @@
   import WorkspacePanel from './components/WorkspacePanel.vue';
   import { useConsole } from './composables/useConsole';
 
+  const KnowledgePanel = defineAsyncComponent(() => import('./components/KnowledgePanel.vue'));
+
+  const VALID_TABS = new Set(['config', 'target', 'io', 'entry', 'workspace', 'kb']);
+  const queryTab = new URLSearchParams(window.location.search).get('tab');
+
   const { state, refresh, cancel, rpcUrl } = useConsole();
-  const activeTab = ref('config');
+  const activeTab = ref(queryTab && VALID_TABS.has(queryTab) ? queryTab : 'config');
 
   const statusLabel = computed(() => {
     if (state.status === 'open') return '已连接';
@@ -91,6 +96,9 @@
               </n-tab-pane>
               <n-tab-pane name="workspace" tab="文件 / 历史">
                 <WorkspacePanel />
+              </n-tab-pane>
+              <n-tab-pane name="kb" tab="知识库">
+                <KnowledgePanel />
               </n-tab-pane>
             </n-tabs>
           </n-layout-content>
