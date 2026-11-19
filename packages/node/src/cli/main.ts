@@ -1,4 +1,5 @@
 import { runGate, runGenerate, runHash, runLint, runParity } from './commands';
+import { runKb } from './kb';
 import { runPerf } from './perf';
 
 const args = process.argv.slice(2);
@@ -22,6 +23,9 @@ try {
       break;
     case 'perf':
       code = await runPerf(rest);
+      break;
+    case 'kb':
+      code = await runKb(rest);
       break;
     case 'gate':
       code = await runGate(rest);
@@ -53,5 +57,6 @@ function printUsage(): void {
   parity     生成 -> 回读 -> 与 legacy golden 对比
   hash       生成并输出 sha256 前 16 位
   perf       性能记录；--compare 对比最近两次记录
-  gate       lint + parity + hash + perf`);
+  kb         知识库门禁：validate / reconcile / query / render-md
+  gate       lint + parity + hash + kb + perf`);
 }

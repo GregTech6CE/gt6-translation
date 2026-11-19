@@ -1,60 +1,61 @@
-# 材料出处索引
+# 材料与术语知识库（人工入口）
 
-> 本目录按材料名称的主出处归类，数据来自 `packages/legacy/workplace` 的 `gt.material.*` 语料、GT6CE 生成数据、gregtech6_w 的 `MT.java` 与 GT6 官方仓库。最后更新日期：2026-10-31 10:52。
+本目录只保留这一份人工说明。材料与术语的**单一事实源**在 `knowledge/`，不再入库任何派生的 Markdown 大表；
+需要表格视图时用 `kb render-md` 按需导出（产物在 `packages/node/dist/materials/`，不入库）。
 
-## 分类
+## 数据文件
 
-| 文件 | 内容 | 材料组数 |
-| --- | --- | ---: |
-| [real-world.md](real-world.md) | 现实材料 | 588 |
-| [gt6.md](gt6.md) | GT6 自创材料 | 59 |
-| [mods.md](mods.md) | 其他 Minecraft mod 材料 | 285 |
-| [fiction.md](fiction.md) | 外部作品与神话材料 | 42 |
-| [unknown.md](unknown.md) | 未确定出处的材料 | 17 |
+| 文件 | 内容 |
+| --- | --- |
+| `knowledge/materials.jsonl` | 材料记录，每行一条；键、英中名、类别、形态、组成、出处、GT6/GT6CE 落点 |
+| `knowledge/glossary.jsonl` | 术语记录，每行一条；形态前缀、词缀、等级、机器、方块、物品、流体、界面等非材料词 |
+| `knowledge/material-derivations.json` | 规则派生族（反物质镜像、系统命名元素、任意占位、试剂 Y 系列、带质量数的同位素）与内部占位键 |
 
-## 判定规则
+三者的机器可读契约在 `knowledge/schemas/`：
 
-- 主出处按**名称首创**判定：现实已有的名称归现实，某个 mod 首创归该 mod，外部文学/影视/游戏首创归该作品，GT6 自创归 GT6，无法判定归 unknown。
-- 一个材料只放一个主出处；其他来源写在“出处”列的 `also_in`。
-- 现实材料按木头/岩层/矿物/宝石/化合物/合金/其他分节，mods 按 mod 分节，fiction 按作品分节，gt6 按类别分节。
-- 英文名来自 legacy `en/GregTech.lang`，中文名来自 `zh/GregTech.lang`。中文仍是英文的标为“未译”，括号内为 GT6CE 或外部信源的参考译名，不改动词料。
-- 组成优先使用 GT6CE `MaterialCompositionData`、材料定义中的化学式、gregtech6_w `MT.java` 的 `setMcfg`/`uumMcfg`，没有证据写“未知”。
-- 形态来自 GT6CE `MaterialForms` 的 flags，多种状态并列，例如“固态/液态”。
-- 证据等级：信源（代码/官方/百科明确写出）、推断（多条证据推出）、未知。表格中的“信源”链接指向主要外部证据；本地代码数据不附外链。
-- 表格列：英文名、中文名、组成、形态、出处、证据等级、语言键、备注。备注包含 also_in、译名建议、数据异常和待核对项；它是探索记录，不是项目现行译名。
+- `material.schema.json`：`MaterialRecord`
+- `glossary.schema.json`：`GlossaryRecord`
+- `material-derivations.schema.json`：`MaterialDerivationsConfig`
 
-## 排除规则
+## 字段要点
 
-以下类别不进入本目录：
+- `id` 为 kebab-case 稳定标识；`keys.{gt6,gt6ce,gt6w}` 逐条列出完整语言键，不把多个键挤进一格。
+- `en.canonical` 是英文规范名，`en.aliases` 收英美双拼与内部名别名；`zh.canonical` 是项目规范译名，不得含顿号。
+- `zh.legacy` 是**带出处的条目数组**：`status` 取 `legacy`（语料曾实际使用的旧译）、`rejected`（明确不采用的冲突/误译候选）、`proposed`（尚未定案的建议）；`source` 写明单值来源（如 `gt6-lang`、`gt6ce-lang`、`docs-materials`（指基线 `aece60c` 已移除的 `docs/materials/*.md` 历史分表）等）。
+- `category` 与 `traits` 正交：类别只写一次（`element`/`compound`/`alloy`/`mineral`/`gem`/`rock`/`wood`/`fluid`/`food`/`dye`/`isotope`/`particle`/`other`），`traits` 只放规则驱动的附加特征（`metal`/`ore`/`dust-based`/`chemical-acid`/`magical`/`radioactive`/`celestial`/`vanilla-derived`/`biome-wood`）。
+- `composition` 可选：没有证据就省略字段，不写 `unknown`。
+- `origin`：`kind` 取 `real-world`/`minecraft`/`mod`/`fiction`/`gt6`/`unknown`（`minecraft` 严格用于名称或设定首创于原版 Minecraft 且现实中不存在的材料；原版中的现实事物归 `real-world` 并在 `alsoIn` 记 `"Minecraft"`），`source` 是首创出处名，`evidence` 取 `verified`/`inferred`/`unknown`，`urls` 只放外部首创信源（禁止 MT.java 反循环出处）。
+- `targets`：`numericId`、`modTag`、`mtRef`（MT.java 位置）与 `gt6ce` 收录状态（`active`/`removed`/`renamed`/`legacy-only`）。
+- 术语用 `seeAlso` 表达撞车消歧与同族关系；共用同一中文名时用 `allowSameZhReason` 登记理由。
 
-- 反物质变体（Anti*）
-- GT6 自创/系统命名元素
-- 现实元素/同位素
-- 抽象/任意条目
-- 食物/饮品
-- 颜色
-- 抽象/加工/杂物条目
-- 粉末/食物类材料
-- 水变体（只保留 Water/Brine）
-- 简单流体/环境物质
-- 蜜蜂相关
-- 抽象/机器等级条目
-- 处理形态
+## 操作闭环
 
-具体岩层+矿物组合物品、机器名、材料制品、矿石物品等不在 `gt.material.*` 命名空间，按命名空间天然排除。
+```bash
+# 门禁：schema、键、跨表键冲突、中文撞车、出处与派生规则
+(cd packages/node && npm run kb:validate)
+
+# 三方对账：materials + glossary + derivations 必须 100% 覆盖语料键
+(cd packages/node && npm run kb:reconcile -- --gt6ce ../GregTech6CE/core/src/main/resources/assets/gt6ce/lang/en_us.json)
+
+# 检索：按 id / 英文 / 中文 / 语言键查材料与术语全貌
+(cd packages/node && npm run kb:query -- 三元金属)
+
+# 按需导出阅读视图（仅写入 packages/node/dist/ 内子目录；总览文件为 index.md）
+(cd packages/node && npm run kb:render-md)
+```
+
+`kb reconcile` 在 `unaccounted > 0` 或存在重复登记时返回 1；正常输出形如
+`总 2227、材料 …、术语 …、派生 …、内部占位 …、未解释 0`。
 
 ## 数据来源
 
-- `packages/legacy/workplace/en/GregTech.lang`、`zh/GregTech.lang`：材料键与英中名称。
-- `packages/legacy/workplace/config.yml`、`packages/node/project.jsonc`：分组与词表提示。
-- `GregTech6CE-New/core/src/main/java/gregtech/content/`：`MaterialForms`、`MaterialCompositionData`、`MaterialModTags`、`ModReferences` 与生成的材质目录。
-- `gregtech6_w/src/main/java/gregapi/data/MT.java`：官方派生材料定义、别名和 mod 标签。
-- [GT6 官方 MT.java](https://github.com/GregTech6/gregtech6/blob/master/src/main/java/gregapi/data/MT.java)、[CHANGELOG.md](https://github.com/GregTech6/gregtech6/blob/master/CHANGELOG.md)。
+- `packages/legacy/workplace/en/GregTech.lang`、`zh/GregTech.lang`：GT6 材料键与英中名称。
+- `GregTech6CE/core/src/main/resources/assets/gt6ce/lang/en_us.json`、`zh_cn.json`：GT6CE 材料键与译名。
+- `GregTech6CE/docs/decisions/parity/material-removal.md`：停注材料与数值 ID。
+- `_reference/gregtech6_w/src/main/java/gregapi/data/MT.java`：官方派生材料定义、别名与 mod 标签。
 - 外部信源：Wikipedia、GTNH 中文/英文 Wiki、MC百科、FTB Wiki、Fandom、huijiwiki、术语在线及各 mod/作品 Wiki；详见技能 `.agents/skills/wtf-material/sources/`。
 
-## 说明
+## 后续
 
+- 网页与本地控制台的交互式浏览视图在 #58 提供；在此之前用 `kb query` 与 `kb render-md` 查表。
 - 本目录是翻译辅助资料，不是 GT6 官方文档。材料是否属于某个 mod/作品，以代码、官方 changelog 和外部信源为准。
-- 本目录不记录键数统计，材料条目以各文件表格为准。
-- 旧语料/CE 数据可能存在别名、拼写变体和未译项。已尽量合并别名，但仍以“语言键”列保留原始键，便于回溯。
-- 组成和形态缺失时写“未知”，没有用猜测填充。

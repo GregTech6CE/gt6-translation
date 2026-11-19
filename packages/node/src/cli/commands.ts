@@ -9,6 +9,7 @@ import {
 import { NodeEngineClient } from '../engine-client';
 import { hashOutput } from '../hash';
 import { projectFilePath } from '../paths';
+import { runKb } from './kb';
 import { loadCorpus, loadProjectConfig, loadProjectData, repoRelative, writeArtifactTexts } from './lib';
 
 export async function runGenerate(_args: string[]): Promise<number> {
@@ -216,7 +217,7 @@ export async function runLint(_args: string[]): Promise<number> {
   return errors.length ? 1 : 0;
 }
 
-/** gate 的顺序检查：lint 严格零 error，然后 parity、hash、perf。 */
+/** gate 的顺序检查：lint 严格零 error，然后 parity、hash、kb 门禁、perf。 */
 export async function runGate(args: string[]): Promise<number> {
   const lintCode = await runLint(args);
   if (lintCode !== 0) return lintCode;
@@ -226,6 +227,12 @@ export async function runGate(args: string[]): Promise<number> {
 
   const hashCode = await runHash(args);
   if (hashCode !== 0) return hashCode;
+
+  const kbValidateCode = await runKb(['validate']);
+  if (kbValidateCode !== 0) return kbValidateCode;
+
+  const kbReconcileCode = await runKb(['reconcile']);
+  if (kbReconcileCode !== 0) return kbReconcileCode;
 
   const { runPerf } = await import('./perf');
   return runPerf(args);
