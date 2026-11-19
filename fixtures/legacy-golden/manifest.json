@@ -1,0 +1,29 @@
+{
+  "schemaVersion": 1,
+  "sourceBaseline": "legacy-v1 (a340621)",
+  "note": "en/GregTech.lang 产生于最大兼容 1.7.10 环境且与已入库的 packages/legacy/workplace/en/GregTech.lang 同源；zh 两份为 legacy C++ 工具产物（workplace/zh/GregTech*.lang 不入库）。三份统一以 LF 明文归档于本目录，便于阅读、diff 并在脱离 workplace 时自包含回退。",
+  "source": {
+    "fixture": "fixtures/legacy-golden/en/GregTech.lang",
+    "workplace": "packages/legacy/workplace/en/GregTech.lang",
+    "sha256": "a756f5608e0cf5ae1823fb7aa7f94535342f5928a79df9ef839b6d82771606ba",
+    "bytes": 7531997,
+    "lines": 125688,
+    "entries": 125676
+  },
+  "output": {
+    "fixture": "fixtures/legacy-golden/zh/GregTech.lang",
+    "workplace": "packages/legacy/workplace/zh/GregTech.lang",
+    "sha256": "2b98000e5dcd538e1c40cd9a2c1748ce155baf5a521ec8579481a12f2ae0572b",
+    "bytes": 7250100,
+    "lines": 125685,
+    "entries": 125676
+  },
+  "unknown": {
+    "fixture": "fixtures/legacy-golden/zh/GregTech.unknown.lang",
+    "workplace": "packages/legacy/workplace/zh/GregTech.unknown.lang",
+    "sha256": "938b66b7bce2cbfdaf68f100b013aea24bd36388f55190e4a53095f937e42bd2",
+    "bytes": 170887,
+    "lines": 783,
+    "entries": 774
+  }
+}
