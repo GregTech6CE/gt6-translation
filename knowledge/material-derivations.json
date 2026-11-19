@@ -1,0 +1,51 @@
+{
+  "version": 1,
+  "description": "规则派生材料：这些语言键不是独立材料，而是由基材按固定模板生成的镜像/同位素/占位条目。families 按声明顺序匹配，先命中者生效；internalPlaceholders 逐键列出 GT6 内部占位与彩蛋键。kb reconcile 要求 materials.jsonl + glossary.jsonl + 本文件 100% 覆盖 gt.material.* 与 material.gt6ce.*。",
+  "families": [
+    {
+      "id": "antimatter",
+      "kind": "derived",
+      "description": "GT6 为每种材料生成的镜像材料（Anti*），中文按「反{base}」派生；antimony（锑）与 antimatter（反物质）是真实材料，不在此族。",
+      "template": { "en": "Anti{base}", "zh": "反{base}" },
+      "keyPatterns": ["^gt\\.material\\.Anti[A-Z]", "^material\\.gt6ce\\.anti(?!mony$)(?!matter$)"]
+    },
+    {
+      "id": "systematic-elements",
+      "kind": "derived",
+      "description": "IUPAC 系统命名元素（Unbiunium、Bibibium 等），临时命名，中文按数字词根派生。",
+      "template": { "en": "{systematic}", "zh": "{systematic}" },
+      "keyPatterns": [
+        "^gt\\.material\\.(Un|Bi|Tri|Quad|Pent|Hex|Sept|Oct|Enn)(bi|tri|quad|pent|hex|sept|oct|enn|nil|un)(bi|tri|quad|pent|hex|sept|oct|enn|nil|un)(?:i)?um$",
+        "^material\\.gt6ce\\.(un|bi|tri|quad|pent|hex|sept|oct|enn)(bi|tri|quad|pent|hex|sept|oct|enn|nil|un)(bi|tri|quad|pent|hex|sept|oct|enn|nil|un)(?:i)?um$"
+      ]
+    },
+    {
+      "id": "any-wildcards",
+      "kind": "derived",
+      "description": "「任意某种材料」的占位键（Any*），不是具体材料；中文按「任意{base}」派生。",
+      "template": { "en": "Any{base}", "zh": "任意{base}" },
+      "keyPatterns": ["^gt\\.material\\.Any([A-Z]|$)", "^material\\.gt6ce\\.any([a-z0-9]|$)"]
+    },
+    {
+      "id": "chemical-y-series",
+      "kind": "derived",
+      "description": "GT6 的试剂 Y 系列（Chemical Y-1..10）与带 CY-11 后缀的彩色试剂，中文按「{base}试剂Y-{n}」派生。",
+      "template": { "en": "{base} CY-{n}", "zh": "{base}试剂Y-{n}" },
+      "keyPatterns": ["^gt\\.material\\.ChemicalY\\d+$", "^gt\\.material\\.[A-Z][a-z]+CY11$"]
+    },
+    {
+      "id": "numbered-isotopes",
+      "kind": "derived",
+      "description": "带质量数的同位素（U235、Au198、Co60、Cobalt60、Gol198、Astatine209、At209、Flerovium298、Radium226、Americium241 等），中文按「元素名-质量数」派生；专名同位素 Deuterium/Tritium 在 materials.jsonl 单独建档。",
+      "template": { "en": "{base}{mass}", "zh": "{base}-{mass}" },
+      "keyPatterns": ["^gt\\.material\\.[A-Z][A-Za-z]*\\d+$", "^material\\.gt6ce\\.[a-z_]+\\d+$"]
+    }
+  ],
+  "internalPlaceholders": [
+    { "keys": ["gt.material.NULL", "material.gt6ce.null"], "reason": "GT6 内部空材料占位键，语料译「无」，没有可翻译实体。" },
+    { "keys": ["gt.material.Empty", "material.gt6ce.empty"], "reason": "GT6 内部空材料占位键，语料译「空」，没有可翻译实体。" },
+    { "keys": ["gt.material.Unknown"], "reason": "GT6 内部未知材料占位键，仅 GT6 语料登记。" },
+    { "keys": ["gt.material.Ryu", "material.gt6ce.ryu"], "reason": "GT6 作者彩蛋键（Ryu），语料保留英文原名，不翻译。" },
+    { "keys": ["gt.material.RyuDragonRyder", "material.gt6ce.ryudragonryder"], "reason": "GT6 作者彩蛋键（RyuDragonRyder），语料保留英文原名，不翻译。" }
+  ]
+}

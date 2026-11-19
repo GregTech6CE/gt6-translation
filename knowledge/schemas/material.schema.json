@@ -1,0 +1,216 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/GregTech6CE/gt6-translation/knowledge/schemas/material.schema.json",
+  "title": "MaterialRecord",
+  "description": "材料知识库中的一条材料记录。单一事实源为 knowledge/materials.jsonl，每行一个 JSON 对象。",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["id", "keys", "en", "zh", "category", "states", "origin", "targets"],
+  "properties": {
+    "id": {
+      "type": "string",
+      "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$",
+      "description": "稳定的机器可读标识（kebab-case），在同一知识库内唯一；由英文规范名派生，改名时保持不变。"
+    },
+    "keys": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "该材料在各语料中的语言键。键必须是完整键名，不得包含 <br> 或空白。",
+      "properties": {
+        "gt6": { "$ref": "#/$defs/keyList", "description": "packages/legacy/workplace 语料中的 gt.material.* 键。" },
+        "gt6ce": { "$ref": "#/$defs/keyList", "description": "GregTech6CE en_us.json 中的 material.gt6ce.* 键。" },
+        "gt6w": { "$ref": "#/$defs/keyList", "description": "gregtech6_w 派生语料中的键。" }
+      }
+    },
+    "en": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["canonical"],
+      "description": "英文名与英文变体。",
+      "properties": {
+        "canonical": { "type": "string", "minLength": 1, "description": "英文规范名（显示名优先）。" },
+        "aliases": {
+          "$ref": "#/$defs/stringList",
+          "description": "同一条目的其他英文名，例如英美双拼、内部名与显示名不一致时的别名。"
+        },
+        "latin": { "type": "string", "minLength": 1, "description": "拉丁文学名（生物类材料）。" },
+        "common": { "type": "string", "minLength": 1, "description": "英文俗名。" }
+      }
+    },
+    "zh": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["canonical"],
+      "description": "中文名与中文变体。canonical 是项目现行规范译名。",
+      "properties": {
+        "canonical": { "type": "string", "minLength": 1, "description": "项目规范中文名；不得含顿号（、）。" },
+        "aliases": { "$ref": "#/$defs/stringList", "description": "可接受的同义中文名。" },
+        "legacy": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/legacyTerm" },
+          "description": "历史译名与候选译名：legacy 为语料曾实际使用的旧译，rejected 为明确不采用的候选，proposed 为尚未定案的建议。"
+        },
+        "stateNames": {
+          "type": "object",
+          "additionalProperties": false,
+          "description": "按形态区分的中文名，例如盐酸（液态）与氯化氢（气态）。",
+          "properties": {
+            "solid": { "type": "string", "minLength": 1 },
+            "liquid": { "type": "string", "minLength": 1 },
+            "gas": { "type": "string", "minLength": 1 },
+            "plasma": { "type": "string", "minLength": 1 }
+          }
+        },
+        "regionVariants": {
+          "type": "object",
+          "additionalProperties": { "type": "string", "minLength": 1 },
+          "description": "地区词，键为地区标识（如 tw、hk）。"
+        }
+      }
+    },
+    "category": {
+      "enum": [
+        "element",
+        "compound",
+        "alloy",
+        "mineral",
+        "gem",
+        "rock",
+        "wood",
+        "fluid",
+        "food",
+        "dye",
+        "isotope",
+        "particle",
+        "other"
+      ],
+      "description": "材料类别，用于文档分组与查询过滤；与 traits 正交，不再用 trait 重复类别。"
+    },
+    "states": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": { "enum": ["solid", "liquid", "gas", "plasma", "unknown"] },
+      "description": "材料在 GT6/GT6CE 中注册的形态。"
+    },
+    "composition": {
+      "type": "string",
+      "minLength": 1,
+      "description": "组成表达式；无证据时省略该字段，不写 unknown。化学式保留下标字符，合金用 × 表示配比。"
+    },
+    "traits": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": { "$ref": "#/$defs/trait" },
+      "description": "与 category/状态正交的规则驱动特征；与类别重复的词不再登记。"
+    },
+    "origin": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "source", "evidence"],
+      "description": "名称首创出处。urls 只放外部首创信源，禁止放 MT.java 等反循环出处。",
+      "properties": {
+        "kind": {
+          "enum": ["real-world", "minecraft", "mod", "fiction", "gt6", "unknown"],
+          "description": "出处大类：现实、原版 Minecraft、其他 mod、外部作品、GT6 自创、未知。"
+        },
+        "source": {
+          "type": "string",
+          "minLength": 1,
+          "description": "首创出处名称，如 现实、Minecraft、GT6、Applied Energistics、Star Trek、未知。"
+        },
+        "alsoIn": { "$ref": "#/$defs/stringList", "description": "同样包含该材料的其他来源。" },
+        "evidence": {
+          "enum": ["verified", "inferred", "unknown"],
+          "description": "证据等级：verified 有外部信源明确写出；inferred 由多条证据推出；unknown 无证据。"
+        },
+        "urls": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": { "type": "string", "format": "uri", "pattern": "^https?://" },
+          "description": "外部首创信源链接；不得指向 MT.java 或本仓库自身代码。"
+        }
+      }
+    },
+    "targets": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["gt6ce"],
+      "description": "该材料在 GT6/GT6CE 中的落点：数值 ID、mod 标签、MT.java 位置与 GT6CE 收录状态。",
+      "properties": {
+        "numericId": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "原版 GT6 MT.java 的材料数值 ID；仅在语料或 parity 决策文档给出时填写。"
+        },
+        "modTag": {
+          "type": "string",
+          "minLength": 1,
+          "description": "MT.java 中的 mod 标签（如 MD.AE），多个用逗号分隔。"
+        },
+        "mtRef": {
+          "type": "string",
+          "format": "uri",
+          "pattern": "^https?://",
+          "description": "MT.java 中定义该材料的代码位置。反循环出处：MT.java 只能放这里，不能放 origin.urls。"
+        },
+        "gt6ce": {
+          "enum": ["active", "removed", "renamed", "legacy-only"],
+          "description": "GT6CE 收录状态：active 正常注册；removed 已停注；renamed 以其他名称注册；legacy-only 仅存在于 GT6 语料。"
+        }
+      }
+    },
+    "allowSameZhReason": {
+      "type": "string",
+      "minLength": 1,
+      "description": "允许与其他材料共用同一中文规范名的理由。未填写时中文撞车会报错。"
+    },
+    "notes": { "type": "string", "minLength": 1, "description": "补充说明，保留探索记录与待核对项。" }
+  },
+  "$defs": {
+    "keyList": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "minLength": 1,
+        "pattern": "^[A-Za-z0-9_.-]+$",
+        "description": "完整语言键；不得包含 <br>、空白或其他分隔符。"
+      }
+    },
+    "stringList": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": { "type": "string", "minLength": 1 }
+    },
+    "legacyTerm": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["text", "source", "status"],
+      "description": "一条历史或候选译名。",
+      "properties": {
+        "text": { "type": "string", "minLength": 1, "description": "译名文本。" },
+        "source": { "type": "string", "minLength": 1, "description": "出处，如 gt6-lang、gt6ce-lang、gt6ce-changelog、docs-materials。" },
+        "status": {
+          "enum": ["legacy", "rejected", "proposed"],
+          "description": "legacy 语料曾实际使用；rejected 明确不采用；proposed 尚未定案。"
+        },
+        "note": { "type": "string", "minLength": 1, "description": "补充说明。" }
+      }
+    },
+    "trait": {
+      "enum": [
+        "metal",
+        "ore",
+        "dust-based",
+        "chemical-acid",
+        "magical",
+        "radioactive",
+        "celestial",
+        "vanilla-derived",
+        "biome-wood"
+      ],
+      "description": "受控特征词表：只放与 category/状态正交、且由规则驱动的特征。"
+    }
+  }
+}

@@ -1,0 +1,77 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/GregTech6CE/gt6-translation/knowledge/schemas/material-derivations.schema.json",
+  "title": "MaterialDerivationsConfig",
+  "description": "规则派生材料的生成规则。families 描述由基材按模板批量派生的键族（反物质镜像、系统命名元素、任意占位、试剂 Y 系列、带质量数的同位素），internalPlaceholders 逐键列出 GT6 内部占位与彩蛋键。单一事实源为 knowledge/material-derivations.json。",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["version", "families", "internalPlaceholders"],
+  "properties": {
+    "version": { "const": 1, "description": "配置版本，当前固定为 1。" },
+    "description": { "type": "string", "minLength": 1, "description": "配置用途说明。" },
+    "families": {
+      "type": "array",
+      "description": "规则派生族。对账时按声明顺序匹配，先命中者生效。",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "kind", "description", "keyPatterns"],
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$",
+            "description": "族标识（kebab-case），在同一配置内唯一，用于对账统计。"
+          },
+          "kind": { "const": "derived", "description": "族类型，当前只有 derived（由规则派生）。" },
+          "description": { "type": "string", "minLength": 1, "description": "该族的派生规则与适用范围。" },
+          "template": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["en", "zh"],
+            "description": "命名模板，用 {base}、{mass}、{n} 等占位符说明派生名形态。",
+            "properties": {
+              "en": { "type": "string", "minLength": 1 },
+              "zh": { "type": "string", "minLength": 1 }
+            }
+          },
+          "keyPatterns": {
+            "type": "array",
+            "minItems": 1,
+            "uniqueItems": true,
+            "items": { "type": "string", "minLength": 1 },
+            "description": "匹配该族语言键的正则（不带分隔符，整串匹配语义由正则自身表达）。"
+          },
+          "flags": {
+            "type": "string",
+            "pattern": "^[imsu]*$",
+            "description": "所有 keyPatterns 共用的正则标志。"
+          }
+        }
+      }
+    },
+    "internalPlaceholders": {
+      "type": "array",
+      "description": "GT6 内部占位/彩蛋键，逐键列出并说明为何没有可翻译实体。",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["keys", "reason"],
+        "properties": {
+          "keys": {
+            "type": "array",
+            "minItems": 1,
+            "uniqueItems": true,
+            "items": {
+              "type": "string",
+              "minLength": 1,
+              "pattern": "^[A-Za-z0-9_.-]+$",
+              "description": "完整语言键。"
+            },
+            "description": "该占位条目覆盖的语言键。"
+          },
+          "reason": { "type": "string", "minLength": 1, "description": "不建材料条目的理由。" }
+        }
+      }
+    }
+  }
+}

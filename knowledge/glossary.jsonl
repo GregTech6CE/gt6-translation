@@ -1,0 +1,96 @@
+{"id": "advanced", "domain": "tier", "keys": {"gt6": ["gt.material.Advanced"], "gt6ce": ["material.gt6ce.advanced"]}, "en": {"canonical": "Advanced"}, "zh": {"canonical": "进阶"}, "notes": "GT6 的材料/机器等级名（Advanced）；语料译名「进阶」为当前显示值，作为等级术语的规范名登记。"}
+{"id": "affix-charged", "domain": "affix", "en": {"canonical": "Charged"}, "zh": {"canonical": "充能"}, "seeAlso": ["energized"], "allowSameZhReason": "Charged（方块前缀）与 Energized（材料修饰词）在语料中同译「充能」，分属不同键。", "notes": "通用方块前缀：Charged X → 充能X（如充能赛特斯石英块）。具体方块实例不再单独建档。"}
+{"id": "ambrosia", "domain": "fluid", "keys": {"gt6ce": ["fluid.gt6ce.potion.ambrosia", "fluid_type.gt6ce.potion_ambrosia", "item.gt6ce.ambrosia"]}, "en": {"canonical": "Ambrosia"}, "zh": {"canonical": "仙馔密酒", "legacy": [{"text": "圣餐", "source": "gt6ce-lang", "status": "rejected"}]}}
+{"id": "basic", "domain": "tier", "keys": {"gt6": ["gt.material.Basic"], "gt6ce": ["material.gt6ce.basic"]}, "en": {"canonical": "Basic"}, "zh": {"canonical": "基础的"}, "notes": "GT6 的材料/机器等级名（Basic）；语料译名「基础的」为当前显示值，作为等级术语的规范名登记。"}
+{"id": "bedrock-drill", "domain": "machine", "keys": {"gt6": ["gt.multitileentity.17999", "gt.recipe.bedrockorelist"], "gt6ce": ["block.gt6ce.bedrock_mining_drill_controller"]}, "en": {"canonical": "Bedrock Drill"}, "zh": {"canonical": "基岩采矿钻", "legacy": [{"text": "主基岩钻", "source": "gt6-lang", "status": "rejected"}, {"text": "主基岩钻", "source": "gt6ce-lang", "status": "rejected"}]}}
+{"id": "dark", "domain": "affix", "keys": {"gt6": ["gt.material.Dark"], "gt6ce": ["material.gt6ce.dark"]}, "en": {"canonical": "Dark"}, "zh": {"canonical": "暗色"}, "notes": "GT6 的材料状态修饰词（Dark）；语料译名「暗色」作为修饰词规范名登记。"}
+{"id": "data", "domain": "affix", "keys": {"gt6": ["gt.material.Data"], "gt6ce": ["material.gt6ce.data"]}, "en": {"canonical": "Data"}, "zh": {"canonical": "数据"}, "notes": "GT6 的材料状态修饰词（Data）；语料译名「数据」作为修饰词规范名登记。"}
+{"id": "distillation-tower", "domain": "machine", "keys": {"gt6": ["gt.recipe.distillationtower"], "gt6ce": ["block.gt6ce.distillation_tower_main", "block.gt6ce.distillation_tower_part"]}, "en": {"canonical": "Distillation Tower"}, "zh": {"canonical": "蒸馏塔", "legacy": [{"text": "蒸馏塔核心", "source": "gt6ce-lang", "status": "rejected"}]}}
+{"id": "elite", "domain": "tier", "keys": {"gt6": ["gt.material.Elite"], "gt6ce": ["material.gt6ce.elite"]}, "en": {"canonical": "Elite"}, "zh": {"canonical": "精华"}, "notes": "GT6 的材料/机器等级名（Elite）；语料译名「精华」为当前显示值，作为等级术语的规范名登记。"}
+{"id": "energized", "domain": "affix", "keys": {"gt6": ["gt.material.Energized"], "gt6ce": ["material.gt6ce.energized"]}, "en": {"canonical": "Energized"}, "zh": {"canonical": "充能"}, "notes": "GT6 的材料状态修饰词（Energized）；语料译名「充能」作为修饰词规范名登记。", "allowSameZhReason": "Energized（材料修饰词）与 Charged（方块前缀）在语料中同译「充能」，分属不同键。", "seeAlso": ["affix-charged"]}
+{"id": "fairy", "domain": "affix", "keys": {"gt6": ["gt.material.Fairy"], "gt6ce": ["material.gt6ce.fairy"]}, "en": {"canonical": "Fairy"}, "zh": {"canonical": "精灵"}, "notes": "GT6 的材料状态修饰词（Fairy）；语料译名「精灵」作为修饰词规范名登记。"}
+{"id": "fluid-funnel", "domain": "block", "keys": {"gt6ce": ["block.gt6ce.fluid_funnel", "block.gt6ce.fluid_funnel_ceramic"]}, "en": {"canonical": "Fluid Funnel"}, "zh": {"canonical": "漏斗"}, "seeAlso": ["hopper"]}
+{"id": "fusion-reactor", "domain": "machine", "keys": {"gt6": ["gt.recipe.fusionreactor"], "gt6ce": ["block.gt6ce.fusion_reactor_main", "block.gt6ce.fusionreactor_stainless_steel"]}, "en": {"canonical": "Fusion Reactor"}, "zh": {"canonical": "聚变反应堆", "legacy": [{"text": "聚变反应器", "source": "gt6-lang", "status": "rejected"}]}}
+{"id": "good", "domain": "tier", "keys": {"gt6": ["gt.material.Good"], "gt6ce": ["material.gt6ce.good"]}, "en": {"canonical": "Good"}, "zh": {"canonical": "不错"}, "notes": "GT6 的材料/机器等级名（Good）；语料译名「不错」为当前显示值，作为等级术语的规范名登记。"}
+{"id": "hopper", "domain": "block", "keys": {"gt6ce": ["block.gt6ce.hopper_aluminium", "block.gt6ce.hopper_brass"]}, "en": {"canonical": "Hopper"}, "zh": {"canonical": "料斗"}, "seeAlso": ["fluid-funnel"]}
+{"id": "implosion-compressor", "domain": "machine", "keys": {"gt6": ["gt.recipe.implosioncompressor"], "gt6ce": ["block.gt6ce.implosion_compressor_main", "block.gt6ce.implosioncompressor_stainless_steel"]}, "en": {"canonical": "Implosion Compressor"}, "zh": {"canonical": "内爆压缩机", "legacy": [{"text": "聚爆压缩机", "source": "gt6-lang", "status": "rejected"}, {"text": "聚爆压缩机", "source": "gt6ce-lang", "status": "rejected"}]}}
+{"id": "industrial-coolant", "domain": "fluid", "keys": {"gt6ce": ["fluid.gt6ce.ic2coolant", "fluid_type.gt6ce.ic2coolant"]}, "en": {"canonical": "Industrial Coolant"}, "zh": {"canonical": "工业冷却液", "legacy": [{"text": "冷却液", "source": "gt6ce-lang", "status": "rejected"}]}}
+{"id": "infernal", "domain": "affix", "keys": {"gt6": ["gt.material.Infernal"], "gt6ce": ["material.gt6ce.infernal"]}, "en": {"canonical": "Infernal"}, "zh": {"canonical": "地狱"}, "notes": "GT6 的材料状态修饰词（Infernal）；语料译名「地狱」作为修饰词规范名登记。"}
+{"id": "infinite", "domain": "tier", "keys": {"gt6": ["gt.material.Infinite"], "gt6ce": ["material.gt6ce.infinite"]}, "en": {"canonical": "Infinite"}, "zh": {"canonical": "无尽"}, "notes": "GT6 的材料/机器等级名（Infinite）；语料译名「无尽」为当前显示值，作为等级术语的规范名登记。", "allowSameZhReason": "GT6 等级修饰词 Infinite 与 Avaritia 无尽材料（material:infinity）同称「无尽」，按等级与实体区分。"}
+{"id": "item-filter-block", "domain": "block", "keys": {"gt6": ["gt.multitileentity.30258"], "gt6ce": ["block.gt6ce.filter_items"]}, "en": {"canonical": "Item Filter (Block)"}, "zh": {"canonical": "物品过滤器"}, "seeAlso": ["item-filter-cover"]}
+{"id": "item-filter-cover", "domain": "item", "keys": {"gt6": ["gt.multiitem.technological.1023"]}, "en": {"canonical": "Item Filter (Cover)"}, "zh": {"canonical": "物品过滤覆盖板"}, "seeAlso": ["item-filter-block"]}
+{"id": "legendary", "domain": "tier", "keys": {"gt6": ["gt.material.Legendary"], "gt6ce": ["material.gt6ce.legendary"]}, "en": {"canonical": "Legendary"}, "zh": {"canonical": "传奇的"}, "notes": "GT6 的材料/机器等级名（Legendary）；语料译名「传奇的」为当前显示值，作为等级术语的规范名登记。"}
+{"id": "master", "domain": "tier", "keys": {"gt6": ["gt.material.Master"], "gt6ce": ["material.gt6ce.master"]}, "en": {"canonical": "Master"}, "zh": {"canonical": "大师"}, "notes": "GT6 的材料/机器等级名（Master）；语料译名「大师」为当前显示值，作为等级术语的规范名登记。"}
+{"id": "mutation", "domain": "affix", "keys": {"gt6": ["gt.material.Mutation"], "gt6ce": ["material.gt6ce.mutation"]}, "en": {"canonical": "Mutation"}, "zh": {"canonical": "突变"}, "notes": "GT6 的材料状态修饰词（Mutation）；语料译名「突变」作为修饰词规范名登记。"}
+{"id": "netherite-scrap", "domain": "item", "en": {"canonical": "Netherite Scrap"}, "zh": {"canonical": "下界合金碎片"}}
+{"id": "organic", "domain": "affix", "keys": {"gt6": ["gt.material.Organic"]}, "en": {"canonical": "Organic"}, "zh": {"canonical": "有机"}, "notes": "GT6 的材料状态修饰词（Organic）；语料译名「有机」作为修饰词规范名登记。"}
+{"id": "pipe-stepsize", "domain": "ui", "keys": {"gt6": ["gt.lang.pipe.stats.stepsize"], "gt6ce": ["tooltip.gt6ce.pipe.stepsize"]}, "en": {"canonical": "Stepsize"}, "zh": {"canonical": "阻力值"}}
+{"id": "plastic-lighter", "domain": "item", "keys": {"gt6": ["gt.multiitem.randomtools.5010"], "gt6ce": ["item.gt6ce.plastic_lighter", "item.gt6ce.plastic_lighter_broken"]}, "en": {"canonical": "Plastic Lighter"}, "zh": {"canonical": "塑料打火机", "legacy": [{"text": "比克打火机", "source": "gt6ce-lang", "status": "rejected"}]}}
+{"id": "prefix-arrow", "domain": "prefix", "keys": {"gt6": ["oredict.prefix.arrow"]}, "en": {"canonical": "Arrows"}, "zh": {"canonical": "箭"}}
+{"id": "prefix-billet", "domain": "prefix", "keys": {"gt6": ["oredict.prefix.billet"], "gt6ce": ["oredict.prefix.billet"]}, "en": {"canonical": "Billets"}, "zh": {"canonical": "坯料"}}
+{"id": "prefix-block-dust", "domain": "prefix", "keys": {"gt6": ["oredict.prefix.blockDust"]}, "en": {"canonical": "Blocks of Dusts"}, "zh": {"canonical": "粉块"}}
+{"id": "prefix-block-gem", "domain": "prefix", "keys": {"gt6": ["oredict.prefix.blockGem"]}, "en": {"canonical": "Block (Gem)", "aliases": ["Blocks of Gems"]}, "zh": {"canonical": "宝石块"}}
+{"id": "prefix-block-ingot", "domain": "prefix", "keys": {"gt6": ["oredict.prefix.blockIngot"]}, "en": {"canonical": "Blocks of Ingots"}, "zh": {"canonical": "金属块"}}
+{"id": "prefix-block-plate", "domain": "prefix", "keys": {"gt6": ["oredict.prefix.blockPlate"]}, "en": {"canonical": "Blocks of Plates"}, "zh": {"canonical": "板方块"}}
+{"id": "prefix-block-raw", "domain": "prefix", "keys": {"gt6": ["oredict.prefix.blockRaw"]}, "en": {"canonical": "Block (Raw Ore)", "aliases": ["Blocks of Ore"]}, "zh": {"canonical": "矿石块"}}
+{"id": "prefix-block-solid", "domain": "prefix", "keys": {"gt6": ["oredict.prefix.blockSolid"], "gt6ce": ["oredict.prefix.blockSolid"]}, "en": {"canonical": "Blocks of Cast Metal"}, "zh": {"canonical": "铸金属块"}}
+{"id": "prefix-bolt", "domain": "prefix", "keys": {"gt6": ["oredict.prefix.bolt"], "gt6ce": ["oredict.prefix.bolt"]}, "en": {"canonical": "Bolts"}, "zh": {"canonical": "螺栓"}}
+{"id": "prefix-boule-gt", "domain": "prefix", "keys": {"gt6": ["oredict.prefix.bouleGt"]}, "en": {"canonical": "Boules"}, "zh": {"canonical": "晶柱"}}
+{"id": "prefix-bucket", "domain": "prefix", "keys": {"gt6": ["oredict.prefix.bucket"]}, "en": {"canonical": "Buckets"}, "zh": {"canonical": "桶"}}
+{"id": "prefix-bullet-gt-small", "domain": "prefix", "keys": {"gt6": ["oredict.prefix.bulletGtSmall"]}, "en": {"canonical": "Small Bullets"}, "zh": {"canonical": "小号子弹"}}
+{"id": "prefix-cable-gt01", "domain": "prefix", "keys": {"gt6": ["oredict.prefix.cableGt01"]}, "en": {"canonical": "1x Cables"}, "zh": {"canonical": "1x 线缆"}}
+{"id": "prefix-cable-gt12", "domain": "prefix", "keys": {"gt6": ["oredict.prefix.cableGt12"]}, "en": {"canonical": "12x Cables"}, "zh": {"canonical": "12x 线缆"}}
+{"id": "prefix-capsule", "domain": "prefix", "keys": {"gt6": ["oredict.prefix.capsule"]}, "en": {"canonical": "Capsules"}, "zh": {"canonical": "胶囊"}}
+{"id": "prefix-casing-machine", "domain": "prefix", "keys": {"gt6": ["oredict.prefix.casingMachine"]}, "en": {"canonical": "Machine Casings"}, "zh": {"canonical": "机器外壳"}}
+{"id": "prefix-casing-small", "domain": "prefix", "keys": {"gt6": ["oredict.prefix.casingSmall"], "gt6ce": ["oredict.prefix.casingSmall"]}, "en": {"canonical": "Item Casings"}, "zh": {"canonical": "外壳"}}
+{"id": "prefix-cell", "domain": "prefix", "keys": {"gt6": ["oredict.prefix.cell"]}, "en": {"canonical": "Cells"}, "zh": {"canonical": "单元"}}
+{"id": "prefix-chain", "domain": "prefix", "keys": {"gt6": ["oredict.prefix.chain"]}, "en": {"canonical": "Chains"}, "zh": {"canonical": "锁链"}}
+{"id": "prefix-chunk-gt", "domain": "prefix", "keys": {"gt6": ["oredict.prefix.chunkGt"], "gt6ce": ["oredict.prefix.chunkGt"]}, "en": {"canonical": "Chunks"}, "zh": {"canonical": "碎块"}}
+{"id": "prefix-cluster", "domain": "prefix", "keys": {"gt6": ["oredict.prefix.cluster"]}, "en": {"canonical": "Native Clusters"}, "zh": {"canonical": "矿簇"}, "allowSameZhReason": "矿词前缀 Native Clusters 与 GT6 矿簇材料本体（material:cluster）同称「矿簇」，按词缀与实体区分。"}
+{"id": "prefix-crate-gt64-ingot", "domain": "prefix", "keys": {"gt6": ["oredict.prefix.crateGt64Ingot"]}, "en": {"canonical": "Crates of Ingots"}, "zh": {"canonical": "锭板条箱"}}
+{"id": "prefix-crushed", "domain": "prefix", "keys": {"gt6": ["oredict.prefix.crushed"]}, "en": {"canonical": "Crushed Ores"}, "zh": {"canonical": "碎矿"}}
+{"id": "prefix-crushed-centrifuged", "domain": "prefix", "keys": {"gt6": ["oredict.prefix.crushedCentrifuged"]}, "en": {"canonical": "Refined Ores"}, "zh": {"canonical": "精炼碎矿"}}
+{"id": "prefix-crushed-purified", "domain": "prefix", "keys": {"gt6": ["oredict.prefix.crushedPurified"]}, "en": {"canonical": "Purified Ores"}, "zh": {"canonical": "纯净碎矿"}}
+{"id": "prefix-crystal", "domain": "prefix", "keys": {"gt6": ["oredict.prefix.crystal"]}, "en": {"canonical": "Crystals"}, "zh": {"canonical": "晶体"}}
+{"id": "prefix-crystal-pure", "domain": "prefix", "keys": {"gt6": ["oredict.prefix.crystalPure"]}, "en": {"canonical": "Pure Crystals"}, "zh": {"canonical": "纯净晶体"}}
+{"id": "prefix-dust", "domain": "prefix", "keys": {"gt6": ["oredict.prefix.dust"]}, "en": {"canonical": "Dusts"}, "zh": {"canonical": "粉"}}
+{"id": "prefix-dust-impure", "domain": "prefix", "keys": {"gt6": ["oredict.prefix.dustImpure"]}, "en": {"canonical": "Impure Dusts"}, "zh": {"canonical": "含杂粉"}}
+{"id": "prefix-dust-pure", "domain": "prefix", "keys": {"gt6": ["oredict.prefix.dustPure"]}, "en": {"canonical": "Purified Dusts"}, "zh": {"canonical": "纯净粉"}}
+{"id": "prefix-dust-small", "domain": "prefix", "keys": {"gt6": ["oredict.prefix.dustSmall"]}, "en": {"canonical": "Small Dusts"}, "zh": {"canonical": "小撮粉"}}
+{"id": "prefix-dust-tiny", "domain": "prefix", "keys": {"gt6": ["oredict.prefix.dustTiny"]}, "en": {"canonical": "Tiny Dusts"}, "zh": {"canonical": "微量粉"}}
+{"id": "prefix-foil", "domain": "prefix", "keys": {"gt6": ["oredict.prefix.foil"]}, "en": {"canonical": "Foils"}, "zh": {"canonical": "箔"}}
+{"id": "prefix-gear-gt", "domain": "prefix", "keys": {"gt6": ["oredict.prefix.gearGt"], "gt6ce": ["oredict.prefix.gearGt"]}, "en": {"canonical": "Gears"}, "zh": {"canonical": "齿轮"}}
+{"id": "prefix-gear-gt-small", "domain": "prefix", "keys": {"gt6": ["oredict.prefix.gearGtSmall"], "gt6ce": ["oredict.prefix.gearGtSmall"]}, "en": {"canonical": "Small Gears"}, "zh": {"canonical": "小齿轮"}}
+{"id": "prefix-gem", "domain": "prefix", "keys": {"gt6": ["oredict.prefix.gem"]}, "en": {"canonical": "Gemstones"}, "zh": {"canonical": "宝石"}}
+{"id": "prefix-gem-exquisite", "domain": "prefix", "keys": {"gt6": ["oredict.prefix.gemExquisite"]}, "en": {"canonical": "Exquisite Gemstones"}, "zh": {"canonical": "精致宝石"}}
+{"id": "prefix-gem-flawed", "domain": "prefix", "keys": {"gt6": ["oredict.prefix.gemFlawed"]}, "en": {"canonical": "Flawed Gemstones"}, "zh": {"canonical": "有瑕宝石"}}
+{"id": "prefix-gem-flawless", "domain": "prefix", "keys": {"gt6": ["oredict.prefix.gemFlawless"]}, "en": {"canonical": "Flawless Gemstones"}, "zh": {"canonical": "无瑕宝石"}}
+{"id": "prefix-ingot", "domain": "prefix", "keys": {"gt6": ["oredict.prefix.ingot"], "gt6ce": ["oredict.prefix.ingot"]}, "en": {"canonical": "Ingots"}, "zh": {"canonical": "锭"}}
+{"id": "prefix-lens", "domain": "prefix", "keys": {"gt6": ["oredict.prefix.lens"]}, "en": {"canonical": "Lenses"}, "zh": {"canonical": "透镜"}}
+{"id": "prefix-nugget", "domain": "prefix", "keys": {"gt6": ["oredict.prefix.nugget"], "gt6ce": ["oredict.prefix.nugget"]}, "en": {"canonical": "Nuggets"}, "zh": {"canonical": "粒"}}
+{"id": "prefix-ore", "domain": "prefix", "keys": {"gt6": ["oredict.prefix.ore"]}, "en": {"canonical": "Ores"}, "zh": {"canonical": "矿石"}}
+{"id": "prefix-plate", "domain": "prefix", "keys": {"gt6": ["oredict.prefix.plate"], "gt6ce": ["oredict.prefix.plate"]}, "en": {"canonical": "Plates"}, "zh": {"canonical": "板"}}
+{"id": "prefix-plate-dense", "domain": "prefix", "keys": {"gt6": ["oredict.prefix.plateDense"]}, "en": {"canonical": "Dense Plates"}, "zh": {"canonical": "致密板"}}
+{"id": "prefix-plate-tiny", "domain": "prefix", "keys": {"gt6": ["oredict.prefix.plateTiny"], "gt6ce": ["oredict.prefix.plateTiny"]}, "en": {"canonical": "Tiny Plates"}, "zh": {"canonical": "薄板"}}
+{"id": "prefix-ring", "domain": "prefix", "keys": {"gt6": ["oredict.prefix.ring"], "gt6ce": ["oredict.prefix.ring"]}, "en": {"canonical": "Rings"}, "zh": {"canonical": "环"}}
+{"id": "prefix-rotor", "domain": "prefix", "keys": {"gt6": ["oredict.prefix.rotor"]}, "en": {"canonical": "Rotors"}, "zh": {"canonical": "转子"}}
+{"id": "prefix-round", "domain": "prefix", "keys": {"gt6": ["oredict.prefix.round"]}, "en": {"canonical": "Rounds"}, "zh": {"canonical": "圆珠"}}
+{"id": "prefix-screw", "domain": "prefix", "keys": {"gt6": ["oredict.prefix.screw"]}, "en": {"canonical": "Screws"}, "zh": {"canonical": "螺丝"}}
+{"id": "prefix-stick", "domain": "prefix", "keys": {"gt6": ["oredict.prefix.stick"], "gt6ce": ["oredict.prefix.stick"]}, "en": {"canonical": "Sticks/Rods"}, "zh": {"canonical": "杆"}}
+{"id": "prefix-stick-long", "domain": "prefix", "keys": {"gt6": ["oredict.prefix.stickLong"], "gt6ce": ["oredict.prefix.stickLong"]}, "en": {"canonical": "Long Sticks/Rods"}, "zh": {"canonical": "长杆"}}
+{"id": "prefix-tool-head-file", "domain": "prefix", "keys": {"gt6": ["oredict.prefix.toolHeadFile"], "gt6ce": ["oredict.prefix.toolHeadFile"]}, "en": {"canonical": "File Heads"}, "zh": {"canonical": "锉头"}}
+{"id": "prefix-tool-head-hammer", "domain": "prefix", "keys": {"gt6": ["oredict.prefix.toolHeadHammer"], "gt6ce": ["oredict.prefix.toolHeadHammer"]}, "en": {"canonical": "Hammer Heads"}, "zh": {"canonical": "锤头"}}
+{"id": "prefix-tool-head-saw", "domain": "prefix", "keys": {"gt6": ["oredict.prefix.toolHeadSaw"]}, "en": {"canonical": "Saw Blades"}, "zh": {"canonical": "锯片"}}
+{"id": "prefix-wire", "domain": "prefix", "keys": {"gt6": ["oredict.prefix.wire"]}, "en": {"canonical": "Wires"}, "zh": {"canonical": "导线"}}
+{"id": "primitive", "domain": "tier", "keys": {"gt6": ["gt.material.Primitive"], "gt6ce": ["material.gt6ce.primitive"]}, "en": {"canonical": "Primitive"}, "zh": {"canonical": "远古"}, "notes": "GT6 的材料/机器等级名（Primitive）；语料译名「远古」为当前显示值，作为等级术语的规范名登记。"}
+{"id": "quantum", "domain": "tier", "keys": {"gt6": ["gt.material.Quantum"], "gt6ce": ["material.gt6ce.quantum"]}, "en": {"canonical": "Quantum"}, "zh": {"canonical": "量子"}, "notes": "GT6 的材料/机器等级名（Quantum）；语料译名「量子」为当前显示值，作为等级术语的规范名登记。"}
+{"id": "reinforced", "domain": "tier", "keys": {"gt6": ["gt.material.Reinforced"], "gt6ce": ["material.gt6ce.reinforced"]}, "en": {"canonical": "Reinforced"}, "zh": {"canonical": "高强度"}, "notes": "GT6 的材料/机器等级名（Reinforced）；语料译名「高强度」为当前显示值，作为等级术语的规范名登记。"}
+{"id": "state-gas", "domain": "prefix", "en": {"canonical": "Gas"}, "zh": {"canonical": "气态"}}
+{"id": "state-liquid", "domain": "prefix", "keys": {"gt6": ["oredict.prefix.liquid"]}, "en": {"canonical": "Liquid"}, "zh": {"canonical": "液态"}}
+{"id": "state-molten", "domain": "prefix", "en": {"canonical": "Molten"}, "zh": {"canonical": "熔融"}}
+{"id": "state-plasma", "domain": "prefix", "keys": {"gt6": ["oredict.prefix.plasma"]}, "en": {"canonical": "Plasma"}, "zh": {"canonical": "等离子体"}}
+{"id": "suffix-hydroxide", "domain": "affix", "en": {"canonical": "Hydroxide"}, "zh": {"canonical": "氢氧化物"}}
+{"id": "suffix-peroxide", "domain": "affix", "en": {"canonical": "Peroxide"}, "zh": {"canonical": "过氧化物"}}
+{"id": "tank-extender", "domain": "block", "keys": {"gt6ce": ["block.gt6ce.inventory_tank_extender", "block.gt6ce.tank_extender"]}, "en": {"canonical": "Tank Extender"}, "zh": {"canonical": "储罐扩展器", "legacy": [{"text": "水箱中继器", "source": "gt6ce-lang", "status": "rejected"}]}}
+{"id": "ultimate", "domain": "tier", "keys": {"gt6": ["gt.material.Ultimate"], "gt6ce": ["material.gt6ce.ultimate"]}, "en": {"canonical": "Ultimate"}, "zh": {"canonical": "极限"}, "notes": "GT6 的材料/机器等级名（Ultimate）；语料译名「极限」为当前显示值，作为等级术语的规范名登记。"}
+{"id": "vile", "domain": "affix", "keys": {"gt6": ["gt.material.Vile"], "gt6ce": ["material.gt6ce.vile"]}, "en": {"canonical": "Vile"}, "zh": {"canonical": "邪恶"}, "notes": "GT6 的材料状态修饰词（Vile）；语料译名「邪恶」作为修饰词规范名登记。"}

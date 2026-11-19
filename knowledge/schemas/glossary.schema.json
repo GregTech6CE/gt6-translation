@@ -1,0 +1,113 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/GregTech6CE/gt6-translation/knowledge/schemas/glossary.schema.json",
+  "title": "GlossaryRecord",
+  "description": "术语知识库中的一条记录，覆盖材料之外的物品、方块、机器、流体、界面与矿物词典前缀等规范词。单一事实源为 knowledge/glossary.jsonl。",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["id", "domain", "en", "zh"],
+  "properties": {
+    "id": {
+      "type": "string",
+      "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$",
+      "description": "稳定的机器可读标识（kebab-case），在同一知识库内唯一。"
+    },
+    "domain": {
+      "enum": [
+        "prefix",
+        "affix",
+        "machine",
+        "block",
+        "item",
+        "tool",
+        "fluid",
+        "mechanic",
+        "tier",
+        "ui",
+        "unit"
+      ],
+      "description": "术语所属域，用于查询过滤与文档分组。prefix 为矿物词典/形态前缀，affix 为可叠加的词缀，tier 为等级名。"
+    },
+    "keys": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "该术语对应的语言键；键必须是完整键名，不得包含 <br> 或空白。",
+      "properties": {
+        "gt6": { "$ref": "#/$defs/keyList", "description": "packages/legacy/workplace 语料中的键。" },
+        "gt6ce": { "$ref": "#/$defs/keyList", "description": "GregTech6CE en_us.json 中的键。" },
+        "gt6w": { "$ref": "#/$defs/keyList", "description": "gregtech6_w 派生语料中的键。" }
+      }
+    },
+    "en": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["canonical"],
+      "properties": {
+        "canonical": { "type": "string", "minLength": 1, "description": "英文规范名。" },
+        "aliases": { "$ref": "#/$defs/stringList", "description": "英文变体，例如英美双拼或旧显示名。" }
+      }
+    },
+    "zh": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["canonical"],
+      "description": "中文名与中文变体。canonical 是项目现行规范译名。",
+      "properties": {
+        "canonical": { "type": "string", "minLength": 1, "description": "项目规范中文名；不得含顿号（、）。" },
+        "aliases": { "$ref": "#/$defs/stringList", "description": "可接受的同义中文名。" },
+        "legacy": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/legacyTerm" },
+          "description": "历史译名与候选译名：legacy 为语料曾实际使用的旧译，rejected 为明确不采用的冲突/误译候选，proposed 为尚未定案的建议。"
+        },
+        "regionVariants": {
+          "type": "object",
+          "additionalProperties": { "type": "string", "minLength": 1 },
+          "description": "地区词，键为地区标识（如 tw、hk）。"
+        }
+      }
+    },
+    "seeAlso": {
+      "$ref": "#/$defs/stringList",
+      "description": "关联术语的 id，用于表达撞车消歧与同族关系（替代一次性的 collisionGroup）。"
+    },
+    "allowSameZhReason": {
+      "type": "string",
+      "minLength": 1,
+      "description": "允许与其他术语共用同一中文规范名的理由。未填写时中文撞车会报错。"
+    },
+    "notes": { "type": "string", "minLength": 1, "description": "补充说明与待核对项。" }
+  },
+  "$defs": {
+    "keyList": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "minLength": 1,
+        "pattern": "^[A-Za-z0-9_.-]+$",
+        "description": "完整语言键；不得包含 <br>、空白或其他分隔符。"
+      }
+    },
+    "stringList": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": { "type": "string", "minLength": 1 }
+    },
+    "legacyTerm": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["text", "source", "status"],
+      "description": "一条历史或候选译名。",
+      "properties": {
+        "text": { "type": "string", "minLength": 1, "description": "译名文本。" },
+        "source": { "type": "string", "minLength": 1, "description": "出处，如 gt6-lang、gt6ce-lang、gt6ce-changelog、docs-materials。" },
+        "status": {
+          "enum": ["legacy", "rejected", "proposed"],
+          "description": "legacy 语料曾实际使用；rejected 明确不采用；proposed 尚未定案。"
+        },
+        "note": { "type": "string", "minLength": 1, "description": "补充说明。" }
+      }
+    }
+  }
+}
