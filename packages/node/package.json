@@ -19,6 +19,7 @@
     "perf": "npm run build:worker && tsx src/cli/main.ts perf",
     "perf:compare": "tsx src/cli/main.ts perf --compare",
     "gate": "npm run build:worker && tsx src/cli/main.ts gate",
+    "test": "tsx --test test/*.test.ts",
     "lint": "oxlint",
     "format": "oxfmt",
     "format:check": "oxfmt --check"

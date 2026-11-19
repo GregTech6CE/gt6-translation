@@ -630,14 +630,6 @@
       "namespace": "S:oredict.",
       "rules": [
         {
-          "s": "{0} {1}",
-          "t": "{0}{1}",
-          "subs": [
-            "wood",
-            "materialProductWoodType"
-          ]
-        },
-        {
           "s": "Short {0} Stick",
           "t": "{0}螺栓",
           "subs": [
@@ -2833,7 +2825,7 @@
     {
       "group": "stoneBrickType",
       "namespace": "S:gt.stone.",
-      "complete": false,
+      "completed": false,
       "dict": {
         "Small": "小型",
         "Cracked": "裂纹",
@@ -2845,7 +2837,7 @@
     {
       "group": "stoneShapeType",
       "namespace": "S:gt.stone.",
-      "complete": false,
+      "completed": false,
       "dict": {
         "Cobblestone": "圆石",
         "Tiles": "方块",
@@ -2857,7 +2849,7 @@
     {
       "group": "stoneType",
       "namespace": "S:",
-      "complete": false,
+      "completed": false,
       "dict": {
         "Andesite": "安山岩",
         "Basalt": "玄武岩",
@@ -4662,9 +4654,9 @@
       }
     },
     {
+      // `extensions` 键已失效（C++ 只读取单数 extension）；#54 会把这些 qt 规则迁入 compat-packs/。
       "group": "qt_machineSmooth",
       "namespace": "S:qwertech.machines",
-      "extensions": "qt",
       "rules": [
         {
           "s": "Smooth {0}",
@@ -4678,7 +4670,6 @@
     {
       "group": "qt_machine",
       "namespace": "S:qwertech.machines",
-      "extensions": "qt",
       "rules": [
         {
           "s": "{0} {1}",
@@ -4694,7 +4685,6 @@
       "group": "qt_machineType",
       "namespace": "S:qwertech.machines",
       "completed": false,
-      "extensions": "qt",
       "dict": {
         "Crafting Table": "合成站",
         "Counterdrawers": "抽屉柜",

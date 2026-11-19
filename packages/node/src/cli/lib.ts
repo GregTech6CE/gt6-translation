@@ -1,5 +1,5 @@
 import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
-import { dirname, join, resolve } from 'node:path';
+import { dirname, resolve } from 'node:path';
 import {
   getTarget,
   parseLegacyLang,
@@ -9,7 +9,16 @@ import {
   type TargetConfig,
 } from '@gt6tg/core';
 import { distPathsForTarget, type ArtifactTexts, type DistPathSet } from '@gt6tg/runtime';
-import { assertArtifactWritable, projectFilePath, repoRelative, repoRoot, resolveInsideRepo } from '../paths';
+import {
+  assertArtifactWritable,
+  projectFilePath,
+  readLangTextSync,
+  repoRelative,
+  repoRoot,
+  resolveCorpusPath,
+  resolveGoldenFile,
+  resolveInsideRepo,
+} from '../paths';
 
 export { repoRelative, repoRoot };
 
@@ -54,12 +63,8 @@ export function loadProjectConfig(): { configText: string; config: ProjectConfig
 }
 
 function loadLangFile(path: string): LangFile {
-  const text = readFileSync(path, 'utf8');
+  const text = readLangTextSync(path);
   return { path, text, document: parseLegacyLang(text) };
-}
-
-function languagePath(root: string, relative: string): string {
-  return resolveInsideRepo(join(root, relative));
 }
 
 /** 只加载生成所需的输入；性能脚本用它，避免多解析 golden。 */
@@ -67,8 +72,8 @@ export function loadCorpus(): Corpus {
   const { configText, config } = loadProjectConfig();
   const target = getTarget(config);
   const workplace = resolveInsideRepo(target.workplace);
-  const sourcePath = languagePath(workplace, target.source);
-  const fallbackPath = languagePath(workplace, target.fallback);
+  const sourcePath = resolveGoldenFile(workplace, target.source);
+  const fallbackPath = resolveCorpusPath(workplace, target.fallback);
   const source = loadLangFile(sourcePath);
   const fallback = loadLangFile(fallbackPath);
   return {
@@ -89,8 +94,8 @@ export function loadProjectData(): ProjectData {
   const corpus = loadCorpus();
   const target = corpus.target;
   const workplace = resolveInsideRepo(target.workplace);
-  const goldenPath = languagePath(workplace, target.output);
-  const goldenUnknownPath = languagePath(workplace, target.unknown);
+  const goldenPath = resolveGoldenFile(workplace, target.output);
+  const goldenUnknownPath = resolveGoldenFile(workplace, target.unknown);
   const golden = loadLangFile(goldenPath);
   const goldenUnknown = loadLangFile(goldenUnknownPath);
   return {
