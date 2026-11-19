@@ -1,4 +1,4 @@
-import type { LangEntry } from '@gt6tg/core';
+import { generateFromEntries, type LangEntry } from '@gt6tg/core';
 import { describe, expect, it } from 'vitest';
 import {
   CompileCache,
@@ -143,10 +143,44 @@ describe('EngineHost', () => {
       outputKeys: 3,
       unknownKeys: 1,
       matchedKeys: 1,
+      sameAsEnglish: 0,
     });
     expect(progress.map((item) => item.phase)).toEqual(['prepare', 'run', 'run', 'done']);
     expect(progress.at(-1)).toMatchObject({ processed: 3, total: 3 });
     expect(result.candidatesByValue.size).toBe(0);
+  });
+
+  it('counts sameAsEnglish only for matched or fallback entries', async () => {
+    const host = createHost();
+    const { compileId } = host.compile(configText);
+
+    const result = await host.run({
+      compileId,
+      sourceEntries: [entry('S:Iron Dust', 'Iron Dust'), entry('S:Unknown', 'Unknown'), entry('S:Raw', 'Raw')],
+      fallbackEntries: [entry('S:Raw', 'Raw')],
+    });
+
+    expect(result.output.get('S:Raw')).toBe('Raw');
+    expect([...result.unknown]).toEqual(['S:Unknown']);
+    expect(result.summary.stats.sameAsEnglish).toBe(1);
+  });
+
+  it('produces the same output and stats as core.generateFromEntries', async () => {
+    const host = createHost();
+    const { compileId } = host.compile(configText);
+    const sourceEntries = [
+      entry('S:Iron Dust', 'Iron Dust'),
+      entry('S:Unknown', 'Unknown'),
+      entry('S:Fallback', 'Fallback'),
+    ];
+    const fallbackEntries = [entry('S:Fallback', '回退')];
+
+    const result = await host.run({ compileId, sourceEntries, fallbackEntries });
+    const expected = generateFromEntries(host.getCompiled(compileId), sourceEntries, fallbackEntries);
+
+    expect([...result.output]).toEqual([...expected.output]);
+    expect([...result.unknown]).toEqual([...expected.unknown]);
+    expect(result.summary.stats).toEqual(expected.stats);
   });
 
   it('limits a job to an explicit key list', async () => {

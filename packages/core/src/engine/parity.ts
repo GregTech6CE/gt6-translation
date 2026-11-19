@@ -5,7 +5,8 @@ import type { ParityInput, ParityReport, ParityUnknownSample, ParityValueSample 
  * 把生成结果与 legacy golden 逐 key 比较。
  *
  * 口径与迁移期脚本一致：
- * - 主输出只遍历 golden 的 key，缺失也算不一致；
+ * - 主输出遍历 golden 的 key，缺失也算不一致；
+ * - 生成结果里既不在 golden 也不在 expectedUnknown 的键算多余键（extraKeys）；
  * - unknown 做双向集合比较，只比 key 不比 value；
  * - 不比较换行、文件头或字节级格式；输出指纹由 runtime 的 HashProvider 负责。
  */
@@ -22,6 +23,14 @@ export function compareToGolden(
     if (actual === expected) continue;
     mismatch++;
     if (samples.length < sampleLimit) samples.push({ key, expected, actual });
+  }
+
+  const extraSamples: ParityValueSample[] = [];
+  let extraKeys = 0;
+  for (const [key, actual] of generated.output) {
+    if (golden.map.has(key) || expectedUnknown.map.has(key)) continue;
+    extraKeys++;
+    if (extraSamples.length < sampleLimit) extraSamples.push({ key, expected: null, actual });
   }
 
   const unknownSamples: ParityUnknownSample[] = [];
@@ -41,9 +50,11 @@ export function compareToGolden(
     goldenKeys: golden.map.size,
     mismatch,
     samples,
+    extraKeys,
+    extraSamples,
     expectedUnknownKeys: expectedUnknown.map.size,
     unknownMismatch,
     unknownSamples,
-    ok: mismatch === 0 && unknownMismatch === 0,
+    ok: mismatch === 0 && extraKeys === 0 && unknownMismatch === 0,
   };
 }

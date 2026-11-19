@@ -1,12 +1,11 @@
 import {
+  applyCandidatesToEntries,
   buildFallbackMap,
   createTimer,
   dedupeCandidates,
   Matcher,
-  selectCandidate,
   type Candidate,
   type CompiledProject,
-  type GenerationStats,
   type LangEntry,
 } from '@gt6tg/core';
 import type { Clock } from './clock';
@@ -46,7 +45,8 @@ const DEFAULT_CHUNK_SIZE = 4096;
  * 分块执行完整的 match/dedupe/apply 流程。
  *
  * 每块结束让出一次事件循环，使 Worker 能处理 progress/cancel/metrics 消息；
- * 输出语义与 core.generateFromEntries 保持一致。
+ * 去重与 apply 直接复用 core 的 `dedupeCandidates` / `applyCandidatesToEntries`，
+ * 因此输出与统计口径和 `core.generateFromEntries` 完全一致。
  */
 export class JobRunner {
   async run(input: JobRunInput): Promise<RunResult> {
@@ -83,41 +83,8 @@ export class JobRunner {
     }
     timer.mark('dedupe');
 
-    const fallbackMap = buildFallbackMap([...(input.fallbackEntries ?? [])]);
-    const output = new Map<string, string>();
-    const unknown = new Set<string>();
-    let sameAsEnglish = 0;
-    let conflictKeys = 0;
-    let matchedKeys = 0;
-
-    for (const entry of entries) {
-      const list = candidatesByValue.get(entry.value) ?? [];
-      const validTargets = new Set<string>();
-      for (const candidate of list) {
-        if (candidate.namespace && !entry.key.startsWith(candidate.namespace)) continue;
-        validTargets.add(candidate.target);
-      }
-      if (validTargets.size > 1) conflictKeys++;
-
-      const selected = selectCandidate(input.compiled, entry.key, list);
-      if (selected) {
-        output.set(entry.key, selected.target);
-        matchedKeys++;
-        if (selected.target === entry.value) sameAsEnglish++;
-        continue;
-      }
-
-      const fallback = fallbackMap.get(entry.key);
-      if (fallback !== undefined) {
-        output.set(entry.key, fallback);
-        if (fallback === entry.value) sameAsEnglish++;
-        continue;
-      }
-
-      output.set(entry.key, entry.value);
-      unknown.add(entry.key);
-      sameAsEnglish++;
-    }
+    const fallbackMap = buildFallbackMap(input.fallbackEntries ?? []);
+    const applied = applyCandidatesToEntries(input.compiled, entries, candidatesByValue, fallbackMap);
     timer.mark('apply');
 
     let candidateBuckets = 0;
@@ -127,15 +94,8 @@ export class JobRunner {
       candidateItems += candidates.length;
     }
 
-    const hash = await hashOutput(input.hash, output);
-    const stats: GenerationStats = {
-      sourceKeys: entries.length,
-      outputKeys: output.size,
-      unknownKeys: unknown.size,
-      sameAsEnglish,
-      conflictKeys,
-      matchedKeys,
-    };
+    const hash = await hashOutput(input.hash, applied.output);
+    const stats = applied.stats;
     const summary: RunSummary = {
       jobId: input.jobId,
       compileId: input.compileId,
@@ -155,8 +115,8 @@ export class JobRunner {
 
     return {
       summary,
-      output,
-      unknown,
+      output: applied.output,
+      unknown: applied.unknown,
       candidatesByValue: input.includeCandidates ? candidatesByValue : new Map(),
     };
   }

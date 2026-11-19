@@ -15,7 +15,8 @@ export interface LangDuplicate {
   previousLine: number;
 }
 
-export type DetectedLineEnding = 'crlf' | 'lf' | 'mixed' | 'none';
+/** 检测到的换行风格；`cr` 表示只出现独立的 CR（旧版 Mac 风格）。 */
+export type DetectedLineEnding = 'crlf' | 'lf' | 'cr' | 'mixed' | 'none';
 
 export interface LangDocument {
   entries: LangEntry[];

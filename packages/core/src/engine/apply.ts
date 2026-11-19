@@ -9,15 +9,19 @@ export interface GenerationStats {
   sourceKeys: number;
   outputKeys: number;
   unknownKeys: number;
+  /** 命中规则/词典或 fallback 且译文与英文原文相同的条目数；unknown 条目不计入。 */
   sameAsEnglish: number;
   conflictKeys: number;
   matchedKeys: number;
 }
 
-export interface GenerationResult {
+export interface ApplyResult {
   output: Map<string, string>;
   unknown: Set<string>;
   stats: GenerationStats;
+}
+
+export interface GenerationResult extends ApplyResult {
   /** 按原文值聚合的候选；调用方可在测试/调试时查看。 */
   candidatesByValue: Map<string, Candidate[]>;
   /** 匹配、去重、apply 的分阶段耗时。 */
@@ -25,12 +29,77 @@ export interface GenerationResult {
 }
 
 /** fallback 必须首次获胜，对齐 C++ 的 std::map::insert。 */
-export function buildFallbackMap(entries: LangEntry[]): Map<string, string> {
+export function buildFallbackMap(entries: readonly LangEntry[]): Map<string, string> {
   const map = new Map<string, string>();
   for (const entry of entries) {
     if (!map.has(entry.key)) map.set(entry.key, entry.value);
   }
   return map;
+}
+
+/**
+ * 把候选与 fallback 应用到词条，产出输出表、unknown 集合与统计。
+ *
+ * 与 C++ 原型一致：候选先按 namespace 前缀过滤，再由 (gen,ri,combo) 取最后；
+ * 未命中候选时用 fallback（首次获胜），仍未命中则原样输出并记入 unknown。
+ *
+ * `core.generateFromEntries` 与 runtime 的 JobRunner 共用这一段，避免两份实现漂移。
+ */
+export function applyCandidatesToEntries(
+  compiled: CompiledProject,
+  entries: readonly LangEntry[],
+  candidatesByValue: Map<string, Candidate[]>,
+  fallbackMap: Map<string, string>,
+): ApplyResult {
+  const output = new Map<string, string>();
+  const unknown = new Set<string>();
+  let sameAsEnglish = 0;
+  let conflictKeys = 0;
+  let matchedKeys = 0;
+
+  for (const entry of entries) {
+    const list = candidatesByValue.get(entry.value) ?? [];
+    // 只统计对当前 key 真正可用的候选（namespace 前缀过滤之后），
+    // 否则同一原文在不同 namespace 下的正常多译文会被误算成冲突。
+    const validTargets = new Set<string>();
+    for (const candidate of list) {
+      if (candidate.namespace && !entry.key.startsWith(candidate.namespace)) continue;
+      validTargets.add(candidate.target);
+    }
+    if (validTargets.size > 1) conflictKeys++;
+
+    const selected = selectCandidate(compiled, entry.key, list);
+    if (selected) {
+      output.set(entry.key, selected.target);
+      matchedKeys++;
+      if (selected.target === entry.value) sameAsEnglish++;
+      continue;
+    }
+
+    const fallback = fallbackMap.get(entry.key);
+    if (fallback !== undefined) {
+      output.set(entry.key, fallback);
+      if (fallback === entry.value) sameAsEnglish++;
+      continue;
+    }
+
+    // unknown 条目沿用英文原文，但不算“译文与英文相同”：它没有命中任何译文。
+    output.set(entry.key, entry.value);
+    unknown.add(entry.key);
+  }
+
+  return {
+    output,
+    unknown,
+    stats: {
+      sourceKeys: entries.length,
+      outputKeys: output.size,
+      unknownKeys: unknown.size,
+      sameAsEnglish,
+      conflictKeys,
+      matchedKeys,
+    },
+  };
 }
 
 /**
@@ -41,8 +110,8 @@ export function buildFallbackMap(entries: LangEntry[]): Map<string, string> {
  */
 export function generateFromEntries(
   compiled: CompiledProject,
-  sourceEntries: LangEntry[],
-  fallbackEntries: LangEntry[],
+  sourceEntries: readonly LangEntry[],
+  fallbackEntries: readonly LangEntry[],
 ): GenerationResult {
   const timer = createTimer('generate');
   const matcher = new Matcher(compiled);
@@ -62,55 +131,13 @@ export function generateFromEntries(
   }
   timer.mark('dedupe');
 
-  const fallbackMap = buildFallbackMap(fallbackEntries);
-  const output = new Map<string, string>();
-  const unknown = new Set<string>();
-  let sameAsEnglish = 0;
-  let conflictKeys = 0;
-  let matchedKeys = 0;
-
-  for (const entry of sourceEntries) {
-    const list = candidatesByValue.get(entry.value) ?? [];
-    // 只统计对当前 key 真正可用的候选（namespace 前缀过滤之后），
-    // 否则同一原文在不同 namespace 下的正常多译文会被误算成冲突。
-    const validTargets = new Set<string>();
-    for (const candidate of list) {
-      if (candidate.namespace && !entry.key.startsWith(candidate.namespace)) continue;
-      validTargets.add(candidate.target);
-    }
-    if (validTargets.size > 1) conflictKeys++;
-    const selected = selectCandidate(compiled, entry.key, list);
-    if (selected) {
-      output.set(entry.key, selected.target);
-      matchedKeys++;
-      if (selected.target === entry.value) sameAsEnglish++;
-      continue;
-    }
-    const fallback = fallbackMap.get(entry.key);
-    if (fallback !== undefined) {
-      output.set(entry.key, fallback);
-      if (fallback === entry.value) sameAsEnglish++;
-      continue;
-    }
-    output.set(entry.key, entry.value);
-    unknown.add(entry.key);
-    sameAsEnglish++;
-  }
-
+  const applied = applyCandidatesToEntries(
+    compiled,
+    sourceEntries,
+    candidatesByValue,
+    buildFallbackMap(fallbackEntries),
+  );
   timer.mark('apply');
 
-  return {
-    output,
-    unknown,
-    candidatesByValue,
-    timings: timer.finish(),
-    stats: {
-      sourceKeys: sourceEntries.length,
-      outputKeys: output.size,
-      unknownKeys: unknown.size,
-      sameAsEnglish,
-      conflictKeys,
-      matchedKeys,
-    },
-  };
+  return { ...applied, candidatesByValue, timings: timer.finish() };
 }

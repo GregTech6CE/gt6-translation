@@ -22,6 +22,10 @@ export interface ParityReport {
   goldenKeys: number;
   mismatch: number;
   samples: ParityValueSample[];
+  /** 生成结果里既不在 golden 也不在 expectedUnknown 的键数。 */
+  extraKeys: number;
+  /** 多余键样本；`expected` 恒为 null。 */
+  extraSamples: ParityValueSample[];
   expectedUnknownKeys: number;
   unknownMismatch: number;
   unknownSamples: ParityUnknownSample[];
