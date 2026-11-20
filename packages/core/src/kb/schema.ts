@@ -1,7 +1,7 @@
 /**
  * 知识库的 zod schema，与 `knowledge/schemas/*.json` 一一对应。
  *
- * JSON Schema 是给外部工具与 AI 阅读的契约，zod 是运行时门禁：两者字段名、
+ * JSON Schema 是给外部工具阅读的契约，zod 是运行时门禁：两者字段名、
  * 必填项与枚举必须保持同步，改动时一起改。文件末尾的编译期断言会在两边漂移时
  * 让 `tsc --noEmit` 直接失败。
  */
@@ -9,6 +9,8 @@ import { z } from 'zod';
 import type {
   CeParityStatus,
   DerivationFamily,
+  EntityDomain,
+  EntityRecord,
   EvidenceLevel,
   GlossaryDomain,
   GlossaryRecord,
@@ -78,18 +80,20 @@ export const evidenceLevelSchema = z.enum(['verified', 'inferred', 'unknown']);
 
 export const ceParityStatusSchema = z.enum(['active', 'removed', 'renamed', 'legacy-only']);
 
-export const glossaryDomainSchema = z.enum([
-  'prefix',
-  'affix',
+export const glossaryDomainSchema = z.enum(['prefix', 'affix', 'tier', 'mechanic', 'ui', 'unit']);
+
+export const entityDomainSchema = z.enum([
   'machine',
-  'block',
-  'item',
+  'multiblock',
+  'storage',
+  'logistics',
+  'cover',
   'tool',
+  'item',
+  'food',
+  'bumblebee',
+  'block',
   'fluid',
-  'mechanic',
-  'tier',
-  'ui',
-  'unit',
 ]);
 
 export const legacyTermStatusSchema = z.enum(['legacy', 'rejected', 'proposed']);
@@ -103,12 +107,28 @@ export const legacyTermSchema = z
   })
   .strict();
 
+const localizedEnShape = {
+  canonical: z.string().min(1),
+  suffix: z.string().min(1).optional(),
+  aliases: stringListSchema.optional(),
+};
+
 const localizedZhShape = {
   canonical: z.string().min(1),
+  suffix: z.string().min(1).optional(),
   aliases: stringListSchema.optional(),
   legacy: z.array(legacyTermSchema).optional(),
   regionVariants: z.record(z.string(), z.string().min(1)).optional(),
 };
+
+const materialCompositionSchema = z
+  .object({
+    formula: z.string().min(1),
+    source: z.string().min(1),
+    gt6: z.string().min(1).optional(),
+    note: z.string().min(1).optional(),
+  })
+  .strict();
 
 const materialKeysSchema = z
   .object({
@@ -124,29 +144,15 @@ export const materialRecordSchema = z
     keys: materialKeysSchema,
     en: z
       .object({
-        canonical: z.string().min(1),
-        aliases: stringListSchema.optional(),
+        ...localizedEnShape,
         latin: z.string().min(1).optional(),
         common: z.string().min(1).optional(),
       })
       .strict(),
-    zh: z
-      .object({
-        ...localizedZhShape,
-        stateNames: z
-          .object({
-            solid: z.string().min(1).optional(),
-            liquid: z.string().min(1).optional(),
-            gas: z.string().min(1).optional(),
-            plasma: z.string().min(1).optional(),
-          })
-          .strict()
-          .optional(),
-      })
-      .strict(),
+    zh: z.object(localizedZhShape).strict(),
     category: materialCategorySchema,
     states: uniqueArray(materialStateSchema, 'states 不能重复').min(1),
-    composition: z.string().min(1).optional(),
+    composition: materialCompositionSchema.optional(),
     traits: uniqueArray(materialTraitSchema, 'traits 不能重复').optional(),
     origin: z
       .object({
@@ -165,6 +171,8 @@ export const materialRecordSchema = z
         gt6ce: ceParityStatusSchema,
       })
       .strict(),
+    variantOf: kebabSchema.optional(),
+    seeAlso: stringListSchema.optional(),
     allowSameZhReason: z.string().min(1).optional(),
     notes: z.string().min(1).optional(),
   })
@@ -175,12 +183,20 @@ export const glossaryRecordSchema = z
     id: kebabSchema,
     domain: glossaryDomainSchema,
     keys: materialKeysSchema.optional(),
-    en: z
-      .object({
-        canonical: z.string().min(1),
-        aliases: stringListSchema.optional(),
-      })
-      .strict(),
+    en: z.object(localizedEnShape).strict(),
+    zh: z.object(localizedZhShape).strict(),
+    seeAlso: stringListSchema.optional(),
+    allowSameZhReason: z.string().min(1).optional(),
+    notes: z.string().min(1).optional(),
+  })
+  .strict();
+
+export const entityRecordSchema = z
+  .object({
+    id: kebabSchema,
+    domain: entityDomainSchema,
+    keys: materialKeysSchema.optional(),
+    en: z.object(localizedEnShape).strict(),
     zh: z.object(localizedZhShape).strict(),
     seeAlso: stringListSchema.optional(),
     allowSameZhReason: z.string().min(1).optional(),
@@ -224,6 +240,8 @@ export const materialDerivationsSchema = z
   })
   .strict();
 
+export const entityDerivationsSchema = materialDerivationsSchema;
+
 /** 供调用方复用的枚举清单。 */
 export const MATERIAL_STATES: readonly MaterialState[] = materialStateSchema.options;
 export const MATERIAL_CATEGORIES: readonly MaterialCategory[] = materialCategorySchema.options;
@@ -232,6 +250,7 @@ export const ORIGIN_KINDS: readonly OriginKind[] = originKindSchema.options;
 export const EVIDENCE_LEVELS: readonly EvidenceLevel[] = evidenceLevelSchema.options;
 export const CE_PARITY_STATUSES: readonly CeParityStatus[] = ceParityStatusSchema.options;
 export const GLOSSARY_DOMAINS: readonly GlossaryDomain[] = glossaryDomainSchema.options;
+export const ENTITY_DOMAINS: readonly EntityDomain[] = entityDomainSchema.options;
 export const LEGACY_TERM_STATUSES: readonly LegacyTermStatus[] = legacyTermStatusSchema.options;
 
 type Exact<A, B> = [A] extends [B] ? ([B] extends [A] ? true : false) : false;
@@ -243,5 +262,6 @@ function assertSchemaMatchesType<A, B>(_matched: Exact<A, B> extends true ? true
 
 assertSchemaMatchesType<z.infer<typeof materialRecordSchema>, MaterialRecord>(true);
 assertSchemaMatchesType<z.infer<typeof glossaryRecordSchema>, GlossaryRecord>(true);
+assertSchemaMatchesType<z.infer<typeof entityRecordSchema>, EntityRecord>(true);
 assertSchemaMatchesType<z.infer<typeof derivationFamilySchema>, DerivationFamily>(true);
 assertSchemaMatchesType<z.infer<typeof materialDerivationsSchema>, MaterialDerivationsConfig>(true);

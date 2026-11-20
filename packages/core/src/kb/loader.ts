@@ -5,8 +5,21 @@
  * 真正的读文件由 `packages/node` 的 CLI 负责。
  */
 import type { ZodType } from 'zod';
-import { glossaryRecordSchema, materialDerivationsSchema, materialRecordSchema } from './schema.ts';
-import type { GlossaryRecord, KnowledgeBase, MaterialDerivationsConfig, MaterialRecord } from './types.ts';
+import {
+  entityDerivationsSchema,
+  entityRecordSchema,
+  glossaryRecordSchema,
+  materialDerivationsSchema,
+  materialRecordSchema,
+} from './schema.ts';
+import type {
+  EntityDerivationsConfig,
+  EntityRecord,
+  GlossaryRecord,
+  KnowledgeBase,
+  MaterialDerivationsConfig,
+  MaterialRecord,
+} from './types.ts';
 
 /** 解析问题：行号从 1 开始，`source` 是文件名或标识。 */
 export interface LoadIssue {
@@ -77,7 +90,9 @@ export function parseJson<T>(text: string, schema: ZodType<T>, source: string): 
 export interface KnowledgeBaseFiles {
   materials: string;
   glossary: string;
+  entities: string;
   derivations: string;
+  entityDerivations?: string;
 }
 
 export interface ParsedKnowledgeBase {
@@ -85,24 +100,37 @@ export interface ParsedKnowledgeBase {
   issues: LoadIssue[];
 }
 
-/** 解析三个知识库文件；任一文件有结构错误时不返回半成品。 */
+/** 解析知识库文件；任一文件有结构错误时不返回半成品。 */
 export function parseKnowledgeBase(files: KnowledgeBaseFiles): ParsedKnowledgeBase {
   const materials = parseJsonl<MaterialRecord>(files.materials, materialRecordSchema, 'materials.jsonl');
   const glossary = parseJsonl<GlossaryRecord>(files.glossary, glossaryRecordSchema, 'glossary.jsonl');
+  const entities = parseJsonl<EntityRecord>(files.entities, entityRecordSchema, 'entities.jsonl');
   const derivations = parseJson<MaterialDerivationsConfig>(
     files.derivations,
     materialDerivationsSchema,
     'material-derivations.json',
   );
-  const issues = [...materials.issues, ...glossary.issues, ...derivations.issues];
-  if (issues.length > 0 || derivations.value === undefined) {
+  const entityDerivations =
+    files.entityDerivations === undefined
+      ? undefined
+      : parseJson<EntityDerivationsConfig>(files.entityDerivations, entityDerivationsSchema, 'entity-derivations.json');
+  const issues = [
+    ...materials.issues,
+    ...glossary.issues,
+    ...entities.issues,
+    ...derivations.issues,
+    ...(entityDerivations?.issues ?? []),
+  ];
+  if (issues.length > 0 || derivations.value === undefined || (entityDerivations && !entityDerivations.value)) {
     return { issues };
   }
   return {
     knowledgeBase: {
       materials: materials.records,
       glossary: glossary.records,
+      entities: entities.records,
       derivations: derivations.value,
+      ...(entityDerivations?.value ? { entityDerivations: entityDerivations.value } : {}),
     },
     issues,
   };

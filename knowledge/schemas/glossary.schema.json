@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://github.com/GregTech6CE/gt6-translation/knowledge/schemas/glossary.schema.json",
   "title": "GlossaryRecord",
-  "description": "术语知识库中的一条记录，覆盖材料之外的物品、方块、机器、流体、界面与矿物词典前缀等规范词。单一事实源为 knowledge/glossary.jsonl。",
+  "description": "规则与概念术语库中的一条记录，覆盖矿物词典形态前缀、词缀、电压等级、机制、界面与单位等通用词法/概念；具体游戏机器/方块/物品/工具/流体位于 knowledge/entities.jsonl。单一事实源为 knowledge/glossary.jsonl。",
   "type": "object",
   "additionalProperties": false,
   "required": ["id", "domain", "en", "zh"],
@@ -13,20 +13,8 @@
       "description": "稳定的机器可读标识（kebab-case），在同一知识库内唯一。"
     },
     "domain": {
-      "enum": [
-        "prefix",
-        "affix",
-        "machine",
-        "block",
-        "item",
-        "tool",
-        "fluid",
-        "mechanic",
-        "tier",
-        "ui",
-        "unit"
-      ],
-      "description": "术语所属域，用于查询过滤与文档分组。prefix 为矿物词典/形态前缀，affix 为可叠加的词缀，tier 为等级名。"
+      "enum": ["prefix", "affix", "tier", "mechanic", "ui", "unit"],
+      "description": "术语所属域：prefix 形态前缀、affix 词缀、tier 等级、mechanic 机制、ui 界面、unit 单位。"
     },
     "keys": {
       "type": "object",
@@ -44,6 +32,7 @@
       "required": ["canonical"],
       "properties": {
         "canonical": { "type": "string", "minLength": 1, "description": "英文规范名。" },
+        "suffix": { "type": "string", "minLength": 1, "description": "可选的英文限定后缀，如 Gem。" },
         "aliases": { "$ref": "#/$defs/stringList", "description": "英文变体，例如英美双拼或旧显示名。" }
       }
     },
@@ -54,6 +43,7 @@
       "description": "中文名与中文变体。canonical 是项目现行规范译名。",
       "properties": {
         "canonical": { "type": "string", "minLength": 1, "description": "项目规范中文名；不得含顿号（、）。" },
+        "suffix": { "type": "string", "minLength": 1, "description": "可选的可分离中文后缀。" },
         "aliases": { "$ref": "#/$defs/stringList", "description": "可接受的同义中文名。" },
         "legacy": {
           "type": "array",

@@ -10,7 +10,7 @@
     "id": {
       "type": "string",
       "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$",
-      "description": "稳定的机器可读标识（kebab-case），在同一知识库内唯一；由英文规范名派生，改名时保持不变。"
+      "description": "稳定的机器可读标识，由 GT6 权威语言键（gt.material.*，无则取 GT6CE 键）小写派生；同键分拆时附后缀，在同一知识库内唯一。"
     },
     "keys": {
       "type": "object",
@@ -28,7 +28,12 @@
       "required": ["canonical"],
       "description": "英文名与英文变体。",
       "properties": {
-        "canonical": { "type": "string", "minLength": 1, "description": "英文规范名（显示名优先）。" },
+        "canonical": { "type": "string", "minLength": 1, "description": "英文规范名（显示名优先，不含可分离限定后缀）。" },
+        "suffix": {
+          "type": "string",
+          "minLength": 1,
+          "description": "可选的英文形态/类别限定后缀，如 Liquid、Gas、Rock、Dye、Wood；展示时统一在原文后以括号/灰色标注。"
+        },
         "aliases": {
           "$ref": "#/$defs/stringList",
           "description": "同一条目的其他英文名，例如英美双拼、内部名与显示名不一致时的别名。"
@@ -41,25 +46,19 @@
       "type": "object",
       "additionalProperties": false,
       "required": ["canonical"],
-      "description": "中文名与中文变体。canonical 是项目现行规范译名。",
+      "description": "中文名与中文变体。canonical 是项目现行规范词干/译名，可选 suffix 记录模板可分离后缀。",
       "properties": {
-        "canonical": { "type": "string", "minLength": 1, "description": "项目规范中文名；不得含顿号（、）。" },
+        "canonical": { "type": "string", "minLength": 1, "description": "项目规范中文名（词干）；不得含顿号（、）。" },
+        "suffix": {
+          "type": "string",
+          "minLength": 1,
+          "description": "可选的可分离中文后缀（如 矿、石、木、染料、岩）；完整词为 canonical + suffix，展示时以括号/灰色标注。"
+        },
         "aliases": { "$ref": "#/$defs/stringList", "description": "可接受的同义中文名。" },
         "legacy": {
           "type": "array",
           "items": { "$ref": "#/$defs/legacyTerm" },
           "description": "历史译名与候选译名：legacy 为语料曾实际使用的旧译，rejected 为明确不采用的候选，proposed 为尚未定案的建议。"
-        },
-        "stateNames": {
-          "type": "object",
-          "additionalProperties": false,
-          "description": "按形态区分的中文名，例如盐酸（液态）与氯化氢（气态）。",
-          "properties": {
-            "solid": { "type": "string", "minLength": 1 },
-            "liquid": { "type": "string", "minLength": 1 },
-            "gas": { "type": "string", "minLength": 1 },
-            "plasma": { "type": "string", "minLength": 1 }
-          }
         },
         "regionVariants": {
           "type": "object",
@@ -94,9 +93,32 @@
       "description": "材料在 GT6/GT6CE 中注册的形态。"
     },
     "composition": {
-      "type": "string",
-      "minLength": 1,
-      "description": "组成表达式；无证据时省略该字段，不写 unknown。化学式保留下标字符，合金用 × 表示配比。"
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["formula", "source"],
+      "description": "组成信息：同时记录分子式、来源、可选 GT6 记法与备注；无确定组成或未知时省略整体字段，不写 未知/unknown。",
+      "properties": {
+        "formula": {
+          "type": "string",
+          "minLength": 1,
+          "description": "主化学式或组分式（保留下标字符，不得写 未知/unknown）。"
+        },
+        "source": {
+          "type": "string",
+          "minLength": 1,
+          "description": "主化学式来源，如 现实、GT6、维基百科、Metallurgy 等。"
+        },
+        "gt6": {
+          "type": "string",
+          "minLength": 1,
+          "description": "若 GT6 内部配平或简化记法与主式不同，记录于此。"
+        },
+        "note": {
+          "type": "string",
+          "minLength": 1,
+          "description": "组成补充说明（如近似式、水合物、混合物或配比说明）。"
+        }
+      }
     },
     "traits": {
       "type": "array",
@@ -159,6 +181,15 @@
           "description": "GT6CE 收录状态：active 正常注册；removed 已停注；renamed 以其他名称注册；legacy-only 仅存在于 GT6 语料。"
         }
       }
+    },
+    "variantOf": {
+      "type": "string",
+      "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$",
+      "description": "当同一底层语言键按不同形态拆为多条记录（如液态盐酸与气态氯化氢）时，形态变体指向主材料 id；此时变体自身 keys 可为空。"
+    },
+    "seeAlso": {
+      "$ref": "#/$defs/stringList",
+      "description": "关联材料/术语/对象的 id，用于表达多义词消歧与同族形态互指（如 mercury 与 mercury-rock）。"
     },
     "allowSameZhReason": {
       "type": "string",

@@ -73,6 +73,7 @@ function kbCorpusPlugin(): Plugin {
   const repoRoot = resolve(import.meta.dirname, '../..');
   const materialsPath = resolve(repoRoot, 'knowledge/materials.jsonl');
   const glossaryPath = resolve(repoRoot, 'knowledge/glossary.jsonl');
+  const entitiesPath = resolve(repoRoot, 'knowledge/entities.jsonl');
   const gt6ZhPath = resolve(repoRoot, 'fixtures/legacy-golden/zh/GregTech.lang');
   const gt6ceZhPath = process.env.GT6CE_ZH_LANG
     ? resolve(repoRoot, process.env.GT6CE_ZH_LANG)
@@ -86,7 +87,7 @@ function kbCorpusPlugin(): Plugin {
     },
     load(id) {
       if (id !== KB_CORPUS_RESOLVED_ID) return null;
-      const wanted = collectReferencedKeys([materialsPath, glossaryPath]);
+      const wanted = collectReferencedKeys([materialsPath, glossaryPath, entitiesPath]);
       const gt6Available = existsSync(gt6ZhPath);
       const gt6ceAvailable = existsSync(gt6ceZhPath);
       const gt6 = gt6Available ? extractLegacyZh(gt6ZhPath, wanted.gt6) : {};
@@ -102,7 +103,7 @@ function kbCorpusPlugin(): Plugin {
       return `export default ${JSON.stringify(snapshot)};\n`;
     },
     configureServer(server) {
-      const watchFiles = [materialsPath, glossaryPath, gt6ZhPath];
+      const watchFiles = [materialsPath, glossaryPath, entitiesPath, gt6ZhPath];
       if (existsSync(gt6ceZhPath)) watchFiles.push(gt6ceZhPath);
       server.watcher.add(watchFiles);
       const watchSet = new Set(watchFiles.map((file) => resolve(file).toLowerCase()));

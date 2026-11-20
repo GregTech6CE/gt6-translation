@@ -1,11 +1,17 @@
 /**
- * 三方联合对账：把目标语料的键集合 100% 分类为
- * coveredByMaterials / coveredByGlossary / derivedByFamily / internalPlaceholders。
+ * 四方联合对账：把目标语料的键集合 100% 分类为
+ * coveredByMaterials / coveredByGlossary / coveredByEntities / derivedByFamily / internalPlaceholders。
  *
- * `kb reconcile` 用它证明「materials.jsonl 的 keys + glossary.jsonl 的 keys +
- * material-derivations.json 的规则 == 语料全集」，并且没有键被重复登记。
+ * `kb reconcile` 用它证明「materials.jsonl + glossary.jsonl + entities.jsonl +
+ * material-derivations.json == 语料全集」，并且没有键被重复登记。
  */
-import type { GlossaryRecord, MaterialDerivationsConfig, MaterialRecord, ReconcileReport } from './types.ts';
+import type {
+  EntityRecord,
+  GlossaryRecord,
+  MaterialDerivationsConfig,
+  MaterialRecord,
+  ReconcileReport,
+} from './types.ts';
 
 const KEY_NAMESPACES = ['gt6', 'gt6ce', 'gt6w'] as const;
 
@@ -32,8 +38,8 @@ function placeholderKeys(derivations: MaterialDerivationsConfig): Set<string> {
  * GT6 与 GT6CE 语料）只算一次归属，不算重复。
  */
 export function collectKeyOwners(
-  records: readonly (MaterialRecord | GlossaryRecord)[],
-  prefix: 'material' | 'glossary',
+  records: readonly (MaterialRecord | GlossaryRecord | EntityRecord)[],
+  prefix: 'material' | 'glossary' | 'entity',
 ): Map<string, string[]> {
   const index = new Map<string, string[]>();
   for (const record of records) {
@@ -52,18 +58,20 @@ export function collectKeyOwners(
 /**
  * 对账。
  *
- * 分类顺序：先看 materials 是否声明该键，再看 glossary，再看 internalPlaceholders，
- * 最后按 families 的声明顺序匹配正则。四者都不命中即 unaccounted。
+ * 分类顺序：materials → glossary → entities → internalPlaceholders → families；
+ * 五者都不命中即 unaccounted。
  */
 export function reconcileMaterialKeys(
   materials: readonly MaterialRecord[],
   glossary: readonly GlossaryRecord[],
+  entities: readonly EntityRecord[],
   derivations: MaterialDerivationsConfig,
   targetKeys: readonly string[],
   targetName: string,
 ): ReconcileReport {
   const materialOwners = collectKeyOwners(materials, 'material');
   const glossaryOwners = collectKeyOwners(glossary, 'glossary');
+  const entityOwners = collectKeyOwners(entities, 'entity');
   const families = compileFamilies(derivations);
   const placeholders = placeholderKeys(derivations);
 
@@ -72,6 +80,7 @@ export function reconcileMaterialKeys(
   const seen = new Set<string>();
   let coveredByMaterials = 0;
   let coveredByGlossary = 0;
+  let coveredByEntities = 0;
   let internalPlaceholders = 0;
 
   for (const key of targetKeys) {
@@ -83,6 +92,10 @@ export function reconcileMaterialKeys(
     }
     if (glossaryOwners.has(key)) {
       coveredByGlossary += 1;
+      continue;
+    }
+    if (entityOwners.has(key)) {
+      coveredByEntities += 1;
       continue;
     }
     if (placeholders.has(key)) {
@@ -98,7 +111,7 @@ export function reconcileMaterialKeys(
   }
 
   const combinedOwners = new Map<string, string[]>();
-  for (const [key, owners] of [...materialOwners, ...glossaryOwners]) {
+  for (const [key, owners] of [...materialOwners, ...glossaryOwners, ...entityOwners]) {
     const merged = combinedOwners.get(key) ?? [];
     for (const owner of owners) {
       if (!merged.includes(owner)) merged.push(owner);
@@ -116,6 +129,7 @@ export function reconcileMaterialKeys(
     total: seen.size,
     coveredByMaterials,
     coveredByGlossary,
+    coveredByEntities,
     derivedByFamily,
     internalPlaceholders,
     unaccounted,
@@ -124,6 +138,7 @@ export function reconcileMaterialKeys(
       total: seen.size,
       coveredByMaterials,
       coveredByGlossary,
+      coveredByEntities,
       derived,
       internalPlaceholders,
       unaccounted: unaccounted.length,
@@ -131,3 +146,6 @@ export function reconcileMaterialKeys(
     },
   };
 }
+
+/** 与材料对账复用同一套零漏键算法，用于 `entity-derivations.json` 覆盖对账。 */
+export const reconcileEntityKeys = reconcileMaterialKeys;

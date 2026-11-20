@@ -9,9 +9,11 @@
 import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { join, resolve } from 'node:path';
 import {
+  formatComposition,
   parseKnowledgeBase,
   parseLegacyLang,
   queryKnowledgeBase,
+  reconcileEntityKeys,
   reconcileMaterialKeys,
   renderMaterialsMarkdown,
   validateKnowledgeBase,
@@ -30,19 +32,26 @@ interface LoadedKnowledgeBase {
   knowledgeBase: KnowledgeBase;
   materialsPath: string;
   glossaryPath: string;
+  entitiesPath: string;
   derivationsPath: string;
+  entityDerivationsPath: string;
 }
 
 async function loadKnowledgeBase(): Promise<LoadedKnowledgeBase> {
   const materialsPath = resolveInsideRepo(join(KNOWLEDGE_DIR, 'materials.jsonl'));
   const glossaryPath = resolveInsideRepo(join(KNOWLEDGE_DIR, 'glossary.jsonl'));
+  const entitiesPath = resolveInsideRepo(join(KNOWLEDGE_DIR, 'entities.jsonl'));
   const derivationsPath = resolveInsideRepo(join(KNOWLEDGE_DIR, 'material-derivations.json'));
-  const [materials, glossary, derivations] = await Promise.all([
+  const entityDerivationsPath = resolveInsideRepo(join(KNOWLEDGE_DIR, 'entity-derivations.json'));
+  const hasEntityDerivations = await pathExists(entityDerivationsPath);
+  const [materials, glossary, entities, derivations, entityDerivations] = await Promise.all([
     readFile(materialsPath, 'utf8'),
     readFile(glossaryPath, 'utf8'),
+    readFile(entitiesPath, 'utf8'),
     readFile(derivationsPath, 'utf8'),
+    hasEntityDerivations ? readFile(entityDerivationsPath, 'utf8') : Promise.resolve(undefined),
   ]);
-  const parsed = parseKnowledgeBase({ materials, glossary, derivations });
+  const parsed = parseKnowledgeBase({ materials, glossary, entities, derivations, entityDerivations });
   if (parsed.knowledgeBase === undefined) {
     for (const issue of parsed.issues) {
       console.error(`[kb] ${issue.source}:${issue.line} ${issue.message}`);
@@ -52,14 +61,21 @@ async function loadKnowledgeBase(): Promise<LoadedKnowledgeBase> {
   for (const issue of parsed.issues) {
     console.error(`[kb] ${issue.source}:${issue.line} ${issue.message}`);
   }
-  return { knowledgeBase: parsed.knowledgeBase, materialsPath, glossaryPath, derivationsPath };
+  return {
+    knowledgeBase: parsed.knowledgeBase,
+    materialsPath,
+    glossaryPath,
+    entitiesPath,
+    derivationsPath,
+    entityDerivationsPath,
+  };
 }
 
 function printReport(report: ReturnType<typeof validateKnowledgeBase>): void {
   const { stats } = report;
   console.log(
-    `[kb] 材料 ${stats.materials} 条、术语 ${stats.glossary} 条、派生族 ${stats.families} 个、内部占位键 ${stats.internalPlaceholders} 个；` +
-      `键 ${stats.materialKeys + stats.glossaryKeys} 个`,
+    `[kb] 材料 ${stats.materials} 条、术语 ${stats.glossary} 条、对象 ${stats.entities} 条、派生族 ${stats.families} 个、内部占位键 ${stats.internalPlaceholders} 个；` +
+      `键 ${stats.materialKeys + stats.glossaryKeys + stats.entityKeys} 个`,
   );
   console.log(
     `[kb] 证据：verified ${stats.evidence.verified}、inferred ${stats.evidence.inferred}、unknown ${stats.evidence.unknown}`,
@@ -77,7 +93,13 @@ function printReport(report: ReturnType<typeof validateKnowledgeBase>): void {
 
 async function runValidate(): Promise<number> {
   const { knowledgeBase } = await loadKnowledgeBase();
-  const report = validateKnowledgeBase(knowledgeBase.materials, knowledgeBase.glossary, knowledgeBase.derivations);
+  const report = validateKnowledgeBase(
+    knowledgeBase.materials,
+    knowledgeBase.glossary,
+    knowledgeBase.entities,
+    knowledgeBase.derivations,
+    knowledgeBase.entityDerivations,
+  );
   printReport(report);
   return report.ok ? 0 : 1;
 }
@@ -92,7 +114,7 @@ function printReconcile(report: ReconcileReport): void {
   const { counts } = report;
   console.log(
     `[kb] ${report.targetName}：总 ${counts.total}、材料 ${counts.coveredByMaterials}、术语 ${counts.coveredByGlossary}、` +
-      `派生 ${counts.derived}、内部占位 ${counts.internalPlaceholders}、未解释 ${counts.unaccounted}`,
+      `对象 ${counts.coveredByEntities}、派生 ${counts.derived}、内部占位 ${counts.internalPlaceholders}、未解释 ${counts.unaccounted}`,
   );
   const families = Object.entries(report.derivedByFamily).sort(([left], [right]) => left.localeCompare(right));
   for (const [family, count] of families) {
@@ -119,12 +141,39 @@ async function runReconcile(args: readonly string[]): Promise<number> {
   const legacyReport = reconcileMaterialKeys(
     knowledgeBase.materials,
     knowledgeBase.glossary,
+    knowledgeBase.entities,
     knowledgeBase.derivations,
     legacyKeys,
     `gt6-legacy (${repoRelative(legacyPath)})`,
   );
   printReconcile(legacyReport);
   if (legacyReport.counts.unaccounted > 0 || legacyReport.duplicatedKeys.length > 0) failed = true;
+
+  if (knowledgeBase.entityDerivations !== undefined) {
+    const ENTITY_KEY_PREFIXES = [
+      'gt.multitileentity.',
+      'gt.multiitem.',
+      'gt.metatool.',
+      'gt.armor.',
+      'gt.stone.',
+      'gt.block.',
+      'gt.recipe.',
+      'fluid.',
+    ];
+    const entityLegacyKeys = [...legacy.map.keys()]
+      .map((key) => key.replace(/^S:/, ''))
+      .filter((key) => ENTITY_KEY_PREFIXES.some((prefix) => key.startsWith(prefix)));
+    const entityReport = reconcileEntityKeys(
+      knowledgeBase.materials,
+      knowledgeBase.glossary,
+      knowledgeBase.entities,
+      knowledgeBase.entityDerivations,
+      entityLegacyKeys,
+      `gt6-entities (${repoRelative(legacyPath)})`,
+    );
+    printReconcile(entityReport);
+    if (entityReport.counts.unaccounted > 0 || entityReport.duplicatedKeys.length > 0) failed = true;
+  }
 
   const option = readOption(args, '--gt6ce');
   const gt6cePath = option === undefined ? resolve(repoRoot, DEFAULT_GT6CE_LANG) : resolve(repoRoot, option);
@@ -141,6 +190,7 @@ async function runReconcile(args: readonly string[]): Promise<number> {
   const gt6ceReport = reconcileMaterialKeys(
     knowledgeBase.materials,
     knowledgeBase.glossary,
+    knowledgeBase.entities,
     knowledgeBase.derivations,
     gt6ceKeys,
     `gt6ce (${gt6cePath})`,
@@ -152,36 +202,39 @@ async function runReconcile(args: readonly string[]): Promise<number> {
 }
 
 function describeHit(hit: QueryHit): string {
-  const lines = [
-    `${hit.kind === 'material' ? '材料' : '术语'} ${hit.id}：${hit.en} / ${hit.zh}（命中 ${hit.matchedOn}）`,
-  ];
+  const kindLabel = hit.kind === 'material' ? '材料' : hit.kind === 'glossary' ? '术语' : '对象';
+  const lines = [`${kindLabel} ${hit.id}：${hit.en} / ${hit.zh}（命中 ${hit.matchedOn}）`];
   if (hit.material) {
     const record = hit.material;
-    lines.push(`  类别 ${record.category}；形态 ${record.states.join('/')}；组成 ${record.composition ?? '—'}`);
+    lines.push(
+      `  类别 ${record.category}；形态 ${record.states.join('/')}；组成 ${formatComposition(record.composition)}`,
+    );
     lines.push(
       `  出处 ${record.origin.kind} · ${record.origin.source}（${record.origin.evidence}）` +
-        (record.origin.alsoIn ? `；also_in ${record.origin.alsoIn.join(', ')}` : ''),
+        (record.origin.alsoIn ? `；也见于 ${record.origin.alsoIn.join(', ')}` : ''),
     );
     const urls = (record.origin.urls ?? []).join(' ');
     if (urls) lines.push(`  信源 ${urls}`);
     for (const entry of record.zh.legacy ?? []) lines.push(`  ${entry.status} ${entry.text}（${entry.source}）`);
-    const stateNames = Object.entries(record.zh.stateNames ?? {});
-    if (stateNames.length > 0)
-      lines.push(`  分形态 ${stateNames.map(([state, name]) => `${state}=${name}`).join(' ')}`);
-    lines.push(
-      `  键 ${[...(record.keys.gt6 ?? []), ...(record.keys.gt6ce ?? []), ...(record.keys.gt6w ?? [])].join(' ')}`,
-    );
+    if (record.variantOf) lines.push(`  变体来源 ${record.variantOf}`);
+    if (record.seeAlso) lines.push(`  关联 ${record.seeAlso.join(', ')}`);
+    const keys = [...(record.keys.gt6 ?? []), ...(record.keys.gt6ce ?? []), ...(record.keys.gt6w ?? [])];
+    if (keys.length > 0) lines.push(`  键 ${keys.join(' ')}`);
     lines.push(`  GT6CE ${record.targets.gt6ce}；traits ${(record.traits ?? []).join(',') || '—'}`);
     if (record.notes) lines.push(`  备注 ${record.notes}`);
   }
-  if (hit.glossary) {
-    const record = hit.glossary;
-    lines.push(`  域 ${record.domain}`);
-    for (const entry of record.zh.legacy ?? []) lines.push(`  ${entry.status} ${entry.text}（${entry.source}）`);
-    if (record.seeAlso) lines.push(`  关联 ${record.seeAlso.join(', ')}`);
-    const keys = [...(record.keys?.gt6 ?? []), ...(record.keys?.gt6ce ?? []), ...(record.keys?.gt6w ?? [])];
+  const termOrEntity = hit.glossary ?? hit.entity;
+  if (termOrEntity) {
+    lines.push(`  域 ${termOrEntity.domain}`);
+    for (const entry of termOrEntity.zh.legacy ?? []) lines.push(`  ${entry.status} ${entry.text}（${entry.source}）`);
+    if (termOrEntity.seeAlso) lines.push(`  关联 ${termOrEntity.seeAlso.join(', ')}`);
+    const keys = [
+      ...(termOrEntity.keys?.gt6 ?? []),
+      ...(termOrEntity.keys?.gt6ce ?? []),
+      ...(termOrEntity.keys?.gt6w ?? []),
+    ];
     if (keys.length > 0) lines.push(`  键 ${keys.join(' ')}`);
-    if (record.notes) lines.push(`  备注 ${record.notes}`);
+    if (termOrEntity.notes) lines.push(`  备注 ${termOrEntity.notes}`);
   }
   return lines.join('\n');
 }
