@@ -15,7 +15,42 @@ description: 查清一个材料“是什么、英文叫什么、中文叫什么�
 - **中文**：材料在简体中文中的名字，与之关联的有中文俗名、中文学名、港澳台等地区词；不同地区对同一材料的称呼可能不同，具有相同字或部首的材料之间可能存在联系。
 - **出处**：材料名称的来源。可能是现实中的材料（元素、化合物、宝石、矿物等，需要结合专业文献查证），也可能是虚构材料（其他 Minecraft mod、高版本材料、有名的文学/影视/游戏作品等，需要在搜索引擎、MC百科和相关作品的 Wiki 农场页面查证）。
 
+## 【知识库优先】
+
+材料与术语的现行规范译名、组成、形态、出处已经结构化在 `knowledge/`，**先查知识库，再决定要不要外查**：
+
+- `knowledge/materials.jsonl`：材料单一事实源，每行一条 `MaterialRecord`，字段见 `knowledge/schemas/material.schema.json`。
+- `knowledge/glossary.jsonl`：规则术语（形态前缀 `prefix`、词缀 `affix`、等级 `tier`、机制 `mechanic`、界面 `ui`、单位 `unit`），字段见 `knowledge/schemas/glossary.schema.json`。
+- `knowledge/entities.jsonl`：具体游戏对象（单方块机器 `machine`、多方块与结构件 `multiblock`、存储容器 `storage`、管道线缆与物流 `logistics`、覆盖板与面板 `cover`、工具 `tool`、通用物品 `item`、食物与饮品 `food`、蜜蜂 `bumblebee`、独立方块 `block`、非材料流体 `fluid`），字段见 `knowledge/schemas/entity.schema.json`。
+- `knowledge/material-derivations.json`：规则派生材料族（反物质镜像 `Anti{base}`、系统命名元素、`Any*` 占位、试剂 Y 系列、带质量数的同位素）与内部占位/彩蛋键，字段见 `knowledge/schemas/material-derivations.schema.json`。这些键**刻意不建材料条目**，不要再为它们补行。
+- `knowledge/entity-derivations.json`：规则派生实体族（MTE 材质/等级/尺寸变体、MultiItem 同类重复与蜂种/喷漆/模具、MetaTool 变体、tooltip、岩石与装饰方块族、流体派生与材料流体同源族）与非实体占位键，字段见 `knowledge/schemas/entity-derivations.schema.json`。
+- `docs/materials/README.md`：唯一的人工入口说明；派生的 Markdown 大表已不再入库。
+
+```bash
+# 在 packages/node 下执行
+npm run kb:query -- <英文名|中文名|语言键|id> [--json]
+npm run kb:validate
+npm run kb:reconcile -- --gt6ce ../GregTech6CE/core/src/main/resources/assets/gt6ce/lang/en_us.json
+npm run kb:render-md      # 按需导出到 packages/node/dist/materials/（总览为 index.md），不入库
+```
+
+命中后按字段取值：`en.canonical` / `en.suffix` 是英文名与模板/消歧后缀，`zh.canonical` / `zh.suffix` 是**现行规范译名词干与可选后缀**，`zh.legacy[]` 是带出处的历史/候选译名条目（`status` 为 `legacy`/`rejected`/`proposed`，`source` 为 `gt6-lang`/`gt6ce-lang`/`docs-materials`），`variantOf` 指向同材料的另一形态条目，`seeAlso` 指向跨表关联或多义词条，`origin.{kind,source,evidence,urls}` 是出处与证据等级，`targets.*` 是 GT6/GT6CE 落点（`numericId`/`modTag`/`mtRef`/`gt6ce`）。
+
+## 【反循环出处红线】
+
+- `origin.urls` **只放外部首创信源**：现实条目放百科、术语库或专业文献；mod 条目放该 mod 的官方页、GitHub 或 Wiki；作品条目放作品 Wiki。
+- `MT.java`（GT6、GT6CE、gregtech6_w 的代码）只能证明「GT6 收录了它」，不能证明名称首创于某处。它只能写进 `targets.mtRef`；写进 `origin.urls` 会被 `kb validate` 直接判 `error`（`origin.mt-ref`）。
+- 找不到外部信源时，把 `origin.evidence` 降为 `inferred` 或 `unknown` 并在 `notes` 说明，不要用 MT.java 充数；`kb validate` 不再逐条警告缺链接，只在 `stats.evidence` 统计分布。
+
 ## 【操作流程】
+
+### 0. 先查知识库
+
+```bash
+npx tsx src/cli/main.ts kb query <材料名>
+```
+
+命中就直接用知识库里的字段回答，并说明数据来自 `knowledge/materials.jsonl`。没命中再走下面的外查流程。
 
 ### 1. 固定证据
 
@@ -23,10 +58,11 @@ description: 查清一个材料“是什么、英文叫什么、中文叫什么�
 
 - 用户提供了什么？材料英文名、中文名、语言键、物品 ID、截图、某个 mod 的 lang 条目，还是模糊描述？信息以什么形式出现？
 - 本仓库里有没有相关文件和提交？优先查：
+  - `knowledge/materials.jsonl`、`knowledge/glossary.jsonl`：现行规范译名与结构化出处。
   - `packages/legacy/workplace/en/GregTech.lang`、`zh/GregTech.lang`：GT6 英/中语料，材料键通常是 `gt.material.<内部名>`。
   - `packages/legacy/workplace/zh/GregTech.unknown.lang`：未命中的条目。
   - `packages/node/project.jsonc`：词表、替换规则和既有译名。
-  - 工作区里的其他 checkout：`../GregTech6CE-New`、`../gregtech6_w`、`../GregTech6API` 等。
+  - 工作区里的其他 checkout：`../GregTech6CE`、`_reference/gregtech6_w`、`_reference/GregTech6-Original` 等。
   - `git log -S '<材料名>'`：这个词是什么时候、因为什么进入语料的。
 - 如果是 Minecraft lang 格式，分别记下**键名、英文值、中文值**（中文可能为空、缺失或仍是英文）。GT6 的 `GregTech.lang` 是 Forge config 风格（`S:key=value`，`#` 注释），新版资源包则是 `zh_cn.json` / `en_us.json`。
 
@@ -44,7 +80,7 @@ description: 查清一个材料“是什么、英文叫什么、中文叫什么�
 - **MC百科**：中文 mod 条目、物品/材料页、教程和汉化链接。
 - **GTNH百科**：中文站 `gtnh.huijiwiki.com`，英文站 `wiki.gtnewhorizons.com`；GT5U 体系，可作高版本材料参考。
 - **FTB Wiki**：`ftb.fandom.com`，有 GregTech 各版本条目，注意版本差异。
-- **GT6 官方页面（changelog）**：GitHub 仓库、`CHANGELOG.md`、`MT.java` 等代码；材料内部名和组成的强证据。
+- **GT6 官方页面（changelog）**：GitHub 仓库、`CHANGELOG.md`、`MT.java` 等代码；材料内部名和组成的强证据，但**只作收录证据，不作首创出处**。
 - **各来源 Mod 的 GitHub 仓库中的汉化（包括 GTNH）**：查同名词在其他 mod/整合包里的译名和用法。
 - **本仓库及其前身的 GitHub**：GT6TG 的 docs、issue、PR、release，以及前身 `gregtech6-chinese-translation` 的术语表和材料语料；查译名决策和历史版本。
 - **browser use**：页面被反爬、需要登录、或要交互式搜索时使用。
@@ -66,6 +102,30 @@ description: 查清一个材料“是什么、英文叫什么、中文叫什么�
 - 英文：…（俗名/学名/词源联系…）
 - 中文：…（地区词/建议译名…）
 - 出处：…（现实/虚构，来源作品…）
+
+### 4. 回写知识库
+
+调查结论要落回 JSONL，而不是只留在对话里：
+
+- 新增或修正材料：改 `knowledge/materials.jsonl` 的对应行，一行一条，字段与 `knowledge/schemas/material.schema.json` 一致；材料 `id` 以 GT6 语言键小写后缀为准，组成写进结构化 `composition`（`{ formula, source, gt6?, note? }`，无确定组成时省略），原版 MC 材料仅在名称或设定首创于 MC 且现实不存在时标 `origin.kind: "minecraft"`（现实已有的原版材料标 `real-world` 并在 `alsoIn` 记 `"Minecraft"`，不要把 `also_in`/`也见于` 重复写进 `notes`）。不同形态若译名不同，应拆成不同 `id` 的独立词条并用 `variantOf` 关联。`notes` 同一信息只记一处，不写重复结构化字段的套话。
+- 新增或修正规则术语：改 `knowledge/glossary.jsonl`（形态前缀、词缀、等级、机制、界面、单位）。
+- 新增或修正具体游戏对象：改 `knowledge/entities.jsonl`（11 域：`machine` / `multiblock` / `storage` / `logistics` / `cover` / `tool` / `item` / `food` / `bumblebee` / `block` / `fluid`），并在必要时同步 `knowledge/entity-derivations.json`。
+- 确认是规则派生的材料键族：改 `knowledge/material-derivations.json` 的 `families`（给出可执行正则、模板与理由）；内部占位/彩蛋键写进 `internalPlaceholders`。**不要**为这些键建材料行，也不要恢复「精确排除键」清单。
+- 同一完整中文名（`zh.canonical` + `zh.suffix`）必须共用时（包括**三张表跨表同名**），在**每个**共用条目上写 `allowSameZhReason` 说明理由，否则 `kb validate` 报 `zh.collision`。
+- 规范译名（含 `zh.suffix` 与 `zh.regionVariants`）不得含顿号 `、`（`zh.forbidden-separator`），也不得填「未译」「建议：」「Unicode」等占位元信息（`zh.placeholder-meta`）。
+- 语言键必须逐条列出，不得用 `<br>` 或空白拼接（`key.illegal`）；同一语言键不能同时登记在材料、术语与对象多张表中（跨表 `key.duplicate`）。
+- 译名历史写进 `zh.legacy[]` 条目：语料曾实际使用的旧译用 `status: "legacy"`，明确不采用的冲突/误译候选（如「圣餐」「聚爆压缩机」）用 `status: "rejected"`，尚未定案的建议用 `status: "proposed"`；每条只写单一干净 `source`（多个来源分别建条目，不要逗号拼接）。旧译不要再塞进 `zh.canonical`。
+- 跨表撞车消歧、多义项与同族关系用 `seeAlso` 指向对方 id，不要新建一次性分组字段。
+
+改完依次跑：
+
+```bash
+npx tsx src/cli/main.ts kb validate      # schema、键、跨表键冲突、撞车、顿号、派生正则
+npx tsx src/cli/main.ts kb reconcile     # 要求 unaccounted 与 duplicatedKeys 都为 0
+npx tsx src/cli/main.ts kb render-md     # 需要表格时按需导出到 packages/node/dist/materials/
+```
+
+`kb reconcile` 的基线：`gt.material.*` 2,227 键、`gt6-entities`（`gt.multitileentity.*`/`gt.multiitem.*`/`gt.metatool.*`/`gt.armor.*`/`gt.stone.*`/`gt.block.*`/`gt.recipe.*`/`fluid.*`）13,199 键、`material.gt6ce.*` 1,666 键，三段 `unaccounted` 与 `duplicatedKeys` 都必须为 0；新增语料键后要么补材料/术语/对象条目，要么补派生族正则。
 
 ### 注意事项
 

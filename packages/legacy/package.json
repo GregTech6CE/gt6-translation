@@ -2,14 +2,15 @@
   "name": "@gt6tg/legacy",
   "version": "0.1.0",
   "private": true,
-  "description": "原始 C++ 替换器与 workplace 语料，作为 golden/parity 基线；Rush 驱动 CMake 构建。",
+  "description": "原始 C++ 替换器与 workplace 语料，作为 golden/parity 基线；golden 已固化为 fixtures/legacy-golden，C++ 构建单独走 build:cxx。",
   "type": "module",
   "scripts": {
-    "build": "node scripts/build-cxx.mjs",
+    "build": "node scripts/check-golden.mjs",
+    "build:cxx": "node scripts/build-cxx.mjs",
     "golden": "node scripts/check-golden.mjs",
-    "typecheck": "node scripts/check-golden.mjs",
-    "lint": "node scripts/check-golden.mjs",
-    "format:check": "node scripts/check-golden.mjs"
+    "typecheck": "node -e \"console.log('[legacy] ok')\"",
+    "lint": "node --check scripts/check-golden.mjs && node --check scripts/build-cxx.mjs",
+    "format:check": "node --check scripts/check-golden.mjs"
   },
   "engines": {
     "node": ">=24.0.0"

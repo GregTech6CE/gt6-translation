@@ -1,0 +1,184 @@
+{
+  "version": 1,
+  "description": "规则派生实体与非实体占位键：覆盖按材质/电压/颜色/木材/蜂种形态/尺寸/石材/方块/流体家族展开的 GT6 语言键。与 knowledge/entities.jsonl 及 glossary.jsonl 联合实现 100% 零漏键对账（严格依据 GT6 golden 语料与 gregtech6_w，不采信 GT6CE 语料）。说明：Loader_MultiTileEntities.java 另有 5 个字面量注册但 golden 缺键 ID（20421/20422/20424/20425/31023），均已在 entities.jsonl 建档且不列悬空键。",
+  "families": [
+    {
+      "id": "mte-material-and-tier-variants",
+      "kind": "derived",
+      "description": "entities.jsonl 已显式登记 455 个单体与同名共享模板键，并对按材质/电压/尺寸展开的模板建立无键原型；本族覆盖其余由材质、电压等级、尺寸或木材批量生成的 gt.multitileentity.<id> 数字变体键。",
+      "template": {
+        "en": "{Template} ({Material|Tier|Size})",
+        "zh": "{模板} ({材质|等级|尺寸})"
+      },
+      "keyPatterns": [
+        "^gt\\.multitileentity\\.\\d+$"
+      ]
+    },
+    {
+      "id": "multiitem-variants",
+      "kind": "derived",
+      "description": "MultiItem 中的同类重复体（如 171 木桶、32 色喷漆/泡沫、80×8 大黄蜂形态、10 级微型组件、31 模具形态、食物罐头内容物等）以及空电态变体。",
+      "template": {
+        "en": "{Prototype} ({Variant})",
+        "zh": "{原型} ({变体})"
+      },
+      "keyPatterns": [
+        "^gt\\.multiitem\\.[a-z]+\\.\\d+$"
+      ]
+    },
+    {
+      "id": "multiitem-tooltips",
+      "kind": "derived",
+      "description": "MultiItem 与 MetaTool 附带的物品说明行（.tooltip 后缀键，与主名称键一一配对）。",
+      "template": {
+        "en": "{item}.tooltip",
+        "zh": "{物品}.tooltip"
+      },
+      "keyPatterns": [
+        "^gt\\.multiitem\\.[a-z]+\\.\\d+\\.tooltip$",
+        "^gt\\.metatool\\.01\\.\\d+\\.tooltip$"
+      ]
+    },
+    {
+      "id": "metatool-variants",
+      "kind": "derived",
+      "description": "gt.metatool.01 的空电态（奇数 ID）、多电压电动工具及万能工具切换模式变体。",
+      "template": {
+        "en": "{Tool} (Empty|{Tier}|{Mode})",
+        "zh": "{工具} (空|{等级}|{模式})"
+      },
+      "keyPatterns": [
+        "^gt\\.metatool\\.01\\.\\d+$"
+      ]
+    },
+    {
+      "id": "stone-rock-variants",
+      "kind": "derived",
+      "description": "gt.stone.<rock>.<variant> 岩石变体方块家族（14 种岩石 × 16 种雕刻/石砖形态 + 32767 通配，共 2,023 键）。",
+      "template": {
+        "en": "{Rock} {Variant}",
+        "zh": "{岩石}{形态}"
+      },
+      "keyPatterns": [
+        "^gt\\.stone\\."
+      ]
+    },
+    {
+      "id": "block-family-variants",
+      "kind": "derived",
+      "description": "gt.block.<family> 装饰与功能方块家族（混凝土/建筑泡沫/沥青/玻璃/木板/原木/横梁/栏杆/尖刺/轨道等 25 个家族，共 1,826 键）。",
+      "template": {
+        "en": "{Color|Wood|Material} {Block}",
+        "zh": "{颜色|木材|材质}{方块}"
+      },
+      "keyPatterns": [
+        "^gt\\.block\\."
+      ]
+    },
+    {
+      "id": "non-material-fluid-variants",
+      "kind": "derived",
+      "description": "16 色建筑泡沫流体与长效/喷溅/滞留/强化药水变体流体（fluid.cfoam.*、fluid.potion.*）。",
+      "template": {
+        "en": "{Modifier} {Base Fluid}",
+        "zh": "{修饰}{基础流体}"
+      },
+      "keyPatterns": [
+        "^fluid\\.cfoam\\.",
+        "^fluid\\.potion\\."
+      ]
+    },
+    {
+      "id": "fluid-molten-materials",
+      "kind": "derived",
+      "description": "对应 materials.jsonl 材料的熔融态流体键（fluid.molten.*，共 202 键）。",
+      "template": {
+        "en": "Molten {Material}",
+        "zh": "熔融{材料}"
+      },
+      "keyPatterns": [
+        "^fluid\\.molten\\."
+      ]
+    },
+    {
+      "id": "fluid-material-instances",
+      "kind": "derived",
+      "description": "对应 materials.jsonl 已有材料的流体形态及兼容模组别名流体键（如 fluid.air、fluid.bioethanol、fluid.fuel、fluid.kerosene、fluid.liquid_medium_oil、fluid.ic2* 等，共 117 键）。",
+      "template": {
+        "en": "{Material} Fluid",
+        "zh": "{材料}流体"
+      },
+      "keyPatterns": [
+        "^(?:fluid\\.aerotheum|fluid\\.air|fluid\\.ammonia|fluid\\.aquaregia|fluid\\.argon|fluid\\.astatine|fluid\\.binnie\\.juiceolive|fluid\\.bioethanol|fluid\\.biomass|fluid\\.blackvitriol|fluid\\.blaze|fluid\\.bluevitriol|fluid\\.bromine|fluid\\.butane|fluid\\.carbondioxide|fluid\\.carbonmonoxide|fluid\\.carbontrioxide|fluid\\.chemicalx|fluid\\.chemicaly|fluid\\.chlorine|fluid\\.chloroauricacid|fluid\\.chloroplatinicacid|fluid\\.concrete|fluid\\.creosote|fluid\\.cryotheum|fluid\\.cyanvitriol|fluid\\.deuterium|fluid\\.diesel|fluid\\.disulfuricacid|fluid\\.ectoplasm|fluid\\.ethanol|fluid\\.ethylene|fluid\\.fishoil|fluid\\.fluorine|fluid\\.fuel|fluid\\.glass|fluid\\.glue|fluid\\.glycerol|fluid\\.glyceryl|fluid\\.grayvitriol|fluid\\.grcmilk\\.milk|fluid\\.greenvitriol|fluid\\.heavywater|fluid\\.helium|fluid\\.heliumneon|fluid\\.hempoil|fluid\\.hexafluorosilicicacid|fluid\\.holywater|fluid\\.honey|fluid\\.honeydew|fluid\\.hotfryingoil|fluid\\.hydrochloricacid|fluid\\.hydrogen|fluid\\.hydrogenfluoride|fluid\\.hydrogenperoxide|fluid\\.hydrosulfuricacid|fluid\\.ic2biomass|fluid\\.ic2constructionfoam|fluid\\.ic2distilledwater|fluid\\.ic2uumatter|fluid\\.ice|fluid\\.indigo|fluid\\.kerosene|fluid\\.kerosine|fluid\\.krypton|fluid\\.latex|fluid\\.linoil|fluid\\.liquid_medium_oil|fluid\\.lubricant|fluid\\.martianvitriol|fluid\\.mercury|fluid\\.methane|fluid\\.milk|fluid\\.neon|fluid\\.nitricacid|fluid\\.nitrofuel|fluid\\.nitrogen|fluid\\.nitrogendioxide|fluid\\.nitrogenmonoxide|fluid\\.nutoil|fluid\\.oil|fluid\\.oxygen|fluid\\.petrol|fluid\\.petrotheum|fluid\\.pinkvitriol|fluid\\.plastic|fluid\\.propane|fluid\\.propylene|fluid\\.pyrotheum|fluid\\.radon|fluid\\.redvitriol|fluid\\.saltedwater|fluid\\.saltwater|fluid\\.seawater|fluid\\.seedoil|fluid\\.semiheavywater|fluid\\.soda|fluid\\.spoiledmilk|fluid\\.stannicchloride|fluid\\.steam|fluid\\.sulfurdioxide|fluid\\.sulfuricacid|fluid\\.sulfurtrioxide|fluid\\.sunfloweroil|fluid\\.tea|fluid\\.titaniumtetrachloride|fluid\\.tritiatedwater|fluid\\.tritium|fluid\\.uranium235hexafluoride|fluid\\.uranium238hexafluoride|fluid\\.uraniumhexafluoride|fluid\\.uuamplifier|fluid\\.vitriolofclay|fluid\\.waterdirty|fluid\\.whaleoil|fluid\\.whitevitriol|fluid\\.xenon)$"
+      ]
+    }
+  ],
+  "internalPlaceholders": [
+    {
+      "keys": [
+        "gt.multitileentity.data.switch.tooltip.1",
+        "gt.multitileentity.data.switch.tooltip.2",
+        "gt.multitileentity.data.switch.tooltip.3",
+        "gt.multitileentity.data.switch.tooltip.4",
+        "gt.multitileentity.data.switch.tooltip.5",
+        "gt.multitileentity.ender.garbage.bin.tooltip.1",
+        "gt.multitileentity.ender.garbage.bin.tooltip.2",
+        "gt.multitileentity.ender.garbage.bin.tooltip.3",
+        "gt.multitileentity.ender.garbage.dump.tooltip.1",
+        "gt.multitileentity.ender.garbage.dump.tooltip.2",
+        "gt.multitileentity.ender.garbage.dump.tooltip.3",
+        "gt.multitileentity.hdd.switch.tooltip",
+        "gt.multitileentity.hopper.tooltip.1",
+        "gt.multitileentity.hopper.tooltip.2",
+        "gt.multitileentity.hopper.tooltip.3",
+        "gt.multitileentity.massstorage.tooltip.1",
+        "gt.multitileentity.massstorage.tooltip.2",
+        "gt.multitileentity.plantpot.tooltip.1",
+        "gt.multitileentity.usb.switch.tooltip"
+      ],
+      "reason": "MultiTileEntity 附带的机制/操作说明 tooltip 段落（19 键），非独立实体名称。"
+    },
+    {
+      "keys": [
+        "gt.multiitem.books",
+        "gt.multiitem.bottles",
+        "gt.multiitem.bumblebee",
+        "gt.multiitem.cans",
+        "gt.multiitem.food",
+        "gt.multiitem.randomtools",
+        "gt.multiitem.technological",
+        "gt.metatool.01"
+      ],
+      "reason": "GT6 MultiItem / MetaTool 基类占位显示名（Generated Item / 生成的物品），不作为玩家可见物品建档。"
+    },
+    {
+      "keys": [
+        "gt.armor.hazmat.biochemgas.boots.tooltip_main",
+        "gt.armor.hazmat.biochemgas.chest.tooltip_main",
+        "gt.armor.hazmat.biochemgas.head.tooltip_main",
+        "gt.armor.hazmat.biochemgas.legs.tooltip_main",
+        "gt.armor.hazmat.frost.boots.tooltip_main",
+        "gt.armor.hazmat.frost.chest.tooltip_main",
+        "gt.armor.hazmat.frost.head.tooltip_main",
+        "gt.armor.hazmat.frost.legs.tooltip_main",
+        "gt.armor.hazmat.heat.boots.tooltip_main",
+        "gt.armor.hazmat.heat.chest.tooltip_main",
+        "gt.armor.hazmat.heat.head.tooltip_main",
+        "gt.armor.hazmat.heat.legs.tooltip_main",
+        "gt.armor.hazmat.insect.boots.tooltip_main",
+        "gt.armor.hazmat.insect.chest.tooltip_main",
+        "gt.armor.hazmat.insect.head.tooltip_main",
+        "gt.armor.hazmat.insect.legs.tooltip_main",
+        "gt.armor.hazmat.radiation.boots.tooltip_main",
+        "gt.armor.hazmat.radiation.chest.tooltip_main",
+        "gt.armor.hazmat.radiation.head.tooltip_main",
+        "gt.armor.hazmat.radiation.legs.tooltip_main",
+        "gt.armor.hazmat.universal.boots.tooltip_main",
+        "gt.armor.hazmat.universal.chest.tooltip_main",
+        "gt.armor.hazmat.universal.head.tooltip_main",
+        "gt.armor.hazmat.universal.legs.tooltip_main"
+      ],
+      "reason": "化学/防辐射等防护服套装效果 tooltip 说明行（.tooltip_main，共 24 键），非独立物品名。"
+    }
+  ]
+}

@@ -1,0 +1,100 @@
+name: CI
+
+on:
+  push:
+    branches: [master, dev]
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  gate:
+    name: gate (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    defaults:
+      run:
+        shell: bash
+    steps:
+      # 仓库通过根 .gitattributes 强制 LF 检出（oxfmt endOfLine: lf）；
+      # 在 windows-latest 上同时关闭 core.autocrlf 作为双保险。
+      - name: 统一换行符策略
+        run: git config --global core.autocrlf false
+
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+
+      # Rush 负责 workspace 链接；依赖版本由 common/config/rush/pnpm-lock.yaml 固定。
+      - name: 安装依赖
+        run: node common/scripts/install-run-rush.js install
+
+      # golden 基线已固化为 fixtures/legacy-golden 下的 LF 明文语料，不再依赖 legacy C++ 构建。
+      - name: legacy golden 基线
+        working-directory: packages/legacy
+        run: npm run golden
+
+      - name: 类型检查（core / runtime / node / web）
+        run: |
+          npm --prefix packages/core run typecheck
+          npm --prefix packages/runtime run typecheck
+          npm --prefix packages/node run typecheck
+          npm --prefix packages/web run typecheck
+
+      - name: lint（oxlint）
+        run: |
+          npm --prefix packages/core run lint
+          npm --prefix packages/runtime run lint
+          npm --prefix packages/node run lint
+          npm --prefix packages/web run lint
+
+      - name: 格式检查（oxfmt --check）
+        run: |
+          npm --prefix packages/core run format:check
+          npm --prefix packages/runtime run format:check
+          npm --prefix packages/node run format:check
+          npm --prefix packages/web run format:check
+
+      - name: core / runtime 单测
+        run: |
+          npm --prefix packages/core test
+          npm --prefix packages/runtime test
+
+      - name: node worker 构建
+        working-directory: packages/node
+        run: npm run build:worker
+
+      - name: node 单测
+        working-directory: packages/node
+        run: npm test
+
+      - name: 配置严格 lint
+        working-directory: packages/node
+        run: npm run lint:config
+
+      - name: parity（只读对比）
+        working-directory: packages/node
+        run: npm run parity
+
+      # kb 命令由 #51 的 kb CLI 提供。
+      # CI 不检出兄弟目录 ../GregTech6CE，因此 reconcile 只覆盖仓库内 gt6 语料。
+      - name: kb 门禁
+        working-directory: packages/node
+        run: |
+          npm run kb:validate
+          npm run kb:reconcile
+
+      - name: web 构建
+        working-directory: packages/web
+        run: |
+          npm run build
+          npm run build:node

@@ -1,4 +1,3 @@
-import { join } from 'node:path';
 import {
   analyzeLangDocument,
   compareToGolden,
@@ -14,7 +13,14 @@ import {
 } from '@gt6tg/core';
 import { distPathsForTarget } from '@gt6tg/runtime';
 import { NodeEngineClient } from './engine-client';
-import { readTextIfExists, repoRelative, resolveInsideRepo, writeArtifact } from './paths';
+import {
+  readTextIfExists,
+  repoRelative,
+  resolveCorpusPath,
+  resolveGoldenFile,
+  resolveInsideRepo,
+  writeArtifact,
+} from './paths';
 import { ProjectStore } from './projectStore';
 
 export interface ResolvedTarget {
@@ -46,10 +52,10 @@ export function resolveTarget(store: ProjectStore, targetId?: string): ResolvedT
   return {
     target,
     workplace,
-    source: resolveInsideRepo(join(workplace, target.source)),
-    fallback: resolveInsideRepo(join(workplace, target.fallback)),
-    golden: resolveInsideRepo(join(workplace, target.output)),
-    goldenUnknown: resolveInsideRepo(join(workplace, target.unknown)),
+    source: resolveGoldenFile(workplace, target.source),
+    fallback: resolveCorpusPath(workplace, target.fallback),
+    golden: resolveGoldenFile(workplace, target.output),
+    goldenUnknown: resolveGoldenFile(workplace, target.unknown),
     dist: {
       root: resolveInsideRepo(dist.root),
       output: resolveInsideRepo(dist.output),
@@ -96,7 +102,7 @@ async function readLang(path: string): Promise<ReadLangResult> {
       path: repoRelative(path),
       exists: true,
       size: Buffer.byteLength(text, 'utf8'),
-      lines: text.split(/\r?\n/).length,
+      lines: text.split(/\r\n|\n|\r/).length,
       keys: stats.keys,
       uniqueKeys: stats.uniqueKeys,
       emptyValues: stats.emptyValues,

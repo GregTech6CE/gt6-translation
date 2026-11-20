@@ -2,17 +2,11 @@ import { describe, expect, it } from 'vitest';
 import { parseLegacyLang } from '../src/engine/legacyLang';
 import { compareToGolden } from '../src/engine/parity';
 
-const golden = parseLegacyLang(`# Configuration file
-languagefile {
-    S:a=甲
-    S:b=乙
-}
-`);
+const golden = parseLegacyLang(
+  ['# Configuration file', 'languagefile {', '    S:a=甲', '    S:b=乙', '}', ''].join('\r\n'),
+);
 
-const expectedUnknown = parseLegacyLang(`languagefile {
-    S:c=丙
-}
-`);
+const expectedUnknown = parseLegacyLang(['languagefile {', '    S:c=丙', '}', ''].join('\r\n'));
 
 function input(entries: Array<[string, string]>, unknown: string[] = []) {
   return { output: new Map(entries), unknown: new Set(unknown) };
@@ -35,6 +29,8 @@ describe('parity', () => {
 
     expect(report.ok).toBe(true);
     expect(report.mismatch).toBe(0);
+    expect(report.extraKeys).toBe(0);
+    expect(report.extraSamples).toEqual([]);
     expect(report.unknownMismatch).toBe(0);
     expect(report.goldenKeys).toBe(2);
     expect(report.expectedUnknownKeys).toBe(1);
@@ -45,6 +41,7 @@ describe('parity', () => {
 
     expect(report.ok).toBe(false);
     expect(report.mismatch).toBe(2);
+    expect(report.extraKeys).toBe(0);
     expect(report.samples).toContainEqual({ key: 'S:a', expected: '甲', actual: 'wrong' });
     expect(report.samples).toContainEqual({ key: 'S:b', expected: '乙', actual: null });
   });
@@ -66,5 +63,33 @@ describe('parity', () => {
     expect(report.unknownMismatch).toBe(2);
     expect(report.unknownSamples).toContainEqual({ key: 'S:c', expected: true });
     expect(report.unknownSamples).toContainEqual({ key: 'S:extra', expected: false });
+    // S:extra 既不在 golden 也不在 expectedUnknown，属于多余键。
+    expect(report.extraKeys).toBe(1);
+    expect(report.extraSamples).toEqual([{ key: 'S:extra', expected: null, actual: '多余' }]);
+    expect(report.ok).toBe(false);
+  });
+
+  it('treats keys from expectedUnknown as known and limits extra samples', () => {
+    const report = compareToGolden(
+      golden,
+      input(
+        [
+          ['S:a', '甲'],
+          ['S:b', '乙'],
+          ['S:c', '丙'],
+          ['S:extra1', '一'],
+          ['S:extra2', '二'],
+        ],
+        ['S:c'],
+      ),
+      expectedUnknown,
+      1,
+    );
+
+    expect(report.extraKeys).toBe(2);
+    expect(report.extraSamples).toEqual([{ key: 'S:extra1', expected: null, actual: '一' }]);
+    expect(report.mismatch).toBe(0);
+    expect(report.unknownMismatch).toBe(0);
+    expect(report.ok).toBe(false);
   });
 });

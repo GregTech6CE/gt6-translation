@@ -1,15 +1,16 @@
-import { compareToGolden, lintProject, parseLegacyLang, parseProjectJsonc, type ConfigIssue } from '@gt6tg/core';
+import {
+  compareToGolden,
+  lintProject,
+  parseLegacyLang,
+  parseProjectJsonc,
+  writeLegacyLang,
+  type LangEntry,
+} from '@gt6tg/core';
 import { NodeEngineClient } from '../engine-client';
 import { hashOutput } from '../hash';
 import { projectFilePath } from '../paths';
+import { runKb } from './kb';
 import { loadCorpus, loadProjectConfig, loadProjectData, repoRelative, writeArtifactTexts } from './lib';
-
-/** legacy config.yml 里已存在的问题，gate 把它作为已知基线而不是新失败。 */
-const KNOWN_MISSING_GROUPS = ['materialProductWoodType'];
-
-export interface LintOptions {
-  allowKnown?: boolean;
-}
 
 export async function runGenerate(_args: string[]): Promise<number> {
   const data = loadProjectData();
@@ -59,7 +60,14 @@ export async function runGenerate(_args: string[]): Promise<number> {
   }
 }
 
-export async function runParity(_args: string[]): Promise<number> {
+/**
+ * 生成 -> 回读 -> 与 legacy golden 对比。
+ *
+ * 默认只读：输出只在内存里生成，再用 legacy 格式写一遍并回读，确认格式无损；
+ * 只有显式传 `--write` 才把产物写进 `packages/node/dist`。
+ */
+export async function runParity(args: string[]): Promise<number> {
+  const write = args.includes('--write');
   const data = loadProjectData();
   const client = new NodeEngineClient();
   try {
@@ -71,49 +79,65 @@ export async function runParity(_args: string[]): Promise<number> {
       lineEnding: data.target.lineEnding,
       scope: 'all',
     });
-    const dist = writeArtifactTexts(data, {
-      output: run.outputText,
-      unknown: run.unknownText,
-    });
 
-    const distOutput = parseLegacyLang(run.outputText);
-    const distUnknown = parseLegacyLang(run.unknownText);
-    const artifact = {
-      output: distOutput.map,
-      unknown: new Set(distUnknown.entries.map((entry) => entry.key)),
-    };
+    const output = parseLegacyLang(run.outputText).map;
+    const unknownMap = parseLegacyLang(run.unknownText).map;
+    const artifact = { output, unknown: new Set(unknownMap.keys()) };
+
     const parity = compareToGolden(data.golden, artifact, data.goldenUnknown);
-    const roundTripHash = hashOutput(artifact.output);
-    const roundTripOk = roundTripHash === run.summary.hash;
-    const unknownRoundTripOk = sameSet(artifact.unknown, new Set(run.unknownKeys));
+    const outputRoundTrip = roundTrip(output, data.target.lineEnding);
+    const unknownRoundTrip = roundTrip(unknownMap, data.target.lineEnding);
+    const roundTripOk = outputRoundTrip.hash === run.summary.hash && outputRoundTrip.lossless;
+    const unknownRoundTripOk =
+      unknownRoundTrip.lossless && sameSet(new Set(unknownMap.keys()), new Set(run.unknownKeys));
     const ok = parity.ok && roundTripOk && unknownRoundTripOk;
+
+    const deadFallbackKeys = data.fallback.entries.filter((entry) => !data.source.map.has(entry.key)).length;
+    const fallbackDiagnostics = {
+      path: repoRelative(data.fallbackPath),
+      totalEntries: data.fallback.entries.length,
+      uniqueKeys: data.fallback.map.size,
+      duplicateKeys: data.fallback.duplicates.length,
+      deadKeys: deadFallbackKeys,
+    };
+
+    const dist = write ? writeArtifactTexts(data, { output: run.outputText, unknown: run.unknownText }) : undefined;
 
     console.log(
       JSON.stringify(
         {
           target: data.target.id,
+          write,
           compileMs: Math.round(compiled.timings.totalMs),
           generateMs: Math.round(run.summary.timings.totalMs),
           totalMs: Math.round(run.summary.durationMs),
           patterns: compiled.stats,
           sourceKeys: run.summary.stats.sourceKeys,
-          outputKeys: artifact.output.size,
+          outputKeys: output.size,
           unknown: artifact.unknown.size,
           stats: run.summary.stats,
-          dist: {
-            root: repoRelative(dist.root),
-            output: repoRelative(dist.output),
-            unknown: repoRelative(dist.unknown),
-          },
+          fallbackDiagnostics,
+          golden: repoRelative(data.goldenPath),
+          goldenUnknown: repoRelative(data.goldenUnknownPath),
+          dist: dist
+            ? {
+                root: repoRelative(dist.root),
+                output: repoRelative(dist.output),
+                unknown: repoRelative(dist.unknown),
+              }
+            : null,
           mismatch: parity.mismatch,
+          extraKeys: parity.extraKeys,
           unknownMismatch: parity.unknownMismatch,
           samples: parity.samples,
+          extraSamples: parity.extraSamples,
           unknownSamples: parity.unknownSamples,
-          hash: roundTripHash,
+          hash: outputRoundTrip.hash,
           roundTrip: {
-            hash: roundTripHash,
+            hash: outputRoundTrip.hash,
             expected: run.summary.hash,
             ok: roundTripOk,
+            unknownHash: unknownRoundTrip.hash,
             unknownOk: unknownRoundTripOk,
           },
           ok,
@@ -124,7 +148,7 @@ export async function runParity(_args: string[]): Promise<number> {
     );
 
     if (!ok) {
-      console.error('[parity] 失败：dist 产物与 legacy golden 不一致，或回读结果与内存结果不同');
+      console.error('[parity] 失败：内存产物与 legacy golden 不一致，或回读结果与生成结果不同');
       return 1;
     }
     return 0;
@@ -167,14 +191,13 @@ export async function runHash(_args: string[]): Promise<number> {
   }
 }
 
-export async function runLint(_args: string[], options: LintOptions = {}): Promise<number> {
+/** 严格 lint：任何 error 都算失败，不再对历史缺失组做豁免。 */
+export async function runLint(_args: string[]): Promise<number> {
   const { configText } = loadProjectConfig();
   const parsed = parseProjectJsonc(configText);
   const lint = parsed.config ? lintProject(parsed.config) : undefined;
   const issues = [...parsed.issues, ...(lint?.issues ?? [])];
-  const baseline = options.allowKnown ? issues.filter(isKnownMissingGroup) : [];
-  const remaining = baseline.length ? issues.filter((issue) => !isKnownMissingGroup(issue)) : issues;
-  const errors = remaining.filter((issue) => issue.severity === 'error');
+  const errors = issues.filter((issue) => issue.severity === 'error');
 
   console.log(
     JSON.stringify(
@@ -182,8 +205,8 @@ export async function runLint(_args: string[], options: LintOptions = {}): Promi
         path: projectFilePath,
         parsed: parsed.config !== null,
         stats: lint?.stats,
-        issues: remaining,
-        baseline,
+        issues,
+        errors: errors.length,
         ok: errors.length === 0,
       },
       null,
@@ -194,9 +217,9 @@ export async function runLint(_args: string[], options: LintOptions = {}): Promi
   return errors.length ? 1 : 0;
 }
 
-/** gate 的顺序检查；lint 使用已知基线，避免 legacy 配置的历史问题阻塞门禁。 */
+/** gate 的顺序检查：lint 严格零 error，然后 parity、hash、kb 门禁、perf。 */
 export async function runGate(args: string[]): Promise<number> {
-  const lintCode = await runLint(args, { allowKnown: true });
+  const lintCode = await runLint(args);
   if (lintCode !== 0) return lintCode;
 
   const parityCode = await runParity(args);
@@ -205,12 +228,25 @@ export async function runGate(args: string[]): Promise<number> {
   const hashCode = await runHash(args);
   if (hashCode !== 0) return hashCode;
 
+  const kbValidateCode = await runKb(['validate']);
+  if (kbValidateCode !== 0) return kbValidateCode;
+
+  const kbReconcileCode = await runKb(['reconcile']);
+  if (kbReconcileCode !== 0) return kbReconcileCode;
+
   const { runPerf } = await import('./perf');
   return runPerf(args);
 }
 
-function isKnownMissingGroup(issue: ConfigIssue): boolean {
-  return issue.code === 'group.missing' && KNOWN_MISSING_GROUPS.some((group) => issue.message.includes(group));
+/**
+ * 把输出表按 legacy 格式写一遍再解析回来，验证写盘格式无损。
+ * `lossless` 同时要求 key 数与内容指纹都不变。
+ */
+function roundTrip(map: Map<string, string>, lineEnding: 'crlf' | 'lf'): { hash: string; lossless: boolean } {
+  const entries: LangEntry[] = [...map].map(([key, value], index) => ({ key, value, line: index + 1 }));
+  const reparsed = parseLegacyLang(writeLegacyLang(entries, lineEnding)).map;
+  const hash = hashOutput(reparsed);
+  return { hash, lossless: reparsed.size === map.size && hash === hashOutput(map) };
 }
 
 function sameSet(left: Set<string>, right: Set<string>): boolean {

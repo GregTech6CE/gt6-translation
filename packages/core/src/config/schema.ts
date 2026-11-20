@@ -30,7 +30,8 @@ const ruleDefinitionSchema = z
 
 /**
  * 旧配置里一个块可以同时有 dict 和 rules（共 10 个），因此这里必须都允许。
- * complete/extensions 是旧配置的笔误键；C++ 不读取它们，这里保留以通过校验并在 lint 中提示。
+ * complete/extensions 是旧配置的笔误键；C++ 不读取它们，这里保留以通过校验，
+ * 由 lint 报 `legacy.complete-key` / `legacy.extensions-key`（error）。
  */
 const generatorSchema = z
   .object({
@@ -38,7 +39,9 @@ const generatorSchema = z
     namespace: z.string().optional(),
     cached: z.boolean().optional(),
     completed: z.boolean().optional(),
+    /** @deprecated 旧配置笔误：C++ 只读取 completed，该键会被忽略。 */
     complete: z.boolean().optional(),
+    /** @deprecated 旧配置笔误：C++ 只读取 extension（单数），该键会被忽略。 */
     extensions: z.string().optional(),
     dict: z.record(z.string(), dictValueSchema).optional(),
     rules: z.array(ruleDefinitionSchema).min(1).optional(),

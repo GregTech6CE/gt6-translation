@@ -61,10 +61,12 @@ export function updateTargetJsonc(
   }
 
   const nextTarget = { ...parsed.config.targets[index], ...patch };
+  // 沿用文件原有换行，避免把 \n 混进 CRLF 配置里。
+  const eol = raw.includes('\r\n') ? '\r\n' : '\n';
   const updated = applyEdits(
     raw,
     modify(raw, ['targets', index], nextTarget, {
-      formattingOptions: { insertSpaces: true, tabSize: 2, eol: '\n' },
+      formattingOptions: { insertSpaces: true, tabSize: 2, eol },
     }),
   );
   const reparsed = parseProjectJsonc(updated);

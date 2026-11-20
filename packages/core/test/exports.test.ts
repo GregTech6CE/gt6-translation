@@ -8,6 +8,7 @@ describe('public exports', () => {
       'lintProject',
       'compileConfig',
       'generateFromEntries',
+      'applyCandidatesToEntries',
       'testEntry',
       'parseLegacyLang',
       'writeLegacyLang',

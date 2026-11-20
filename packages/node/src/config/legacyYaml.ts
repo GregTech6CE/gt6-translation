@@ -26,7 +26,8 @@ export interface ImportLegacyOptions {
  * 这里只做结构转换，不做语义校验；调用方应再走 parse/validate/lint。
  */
 export function convertLegacyYamlToProject(yamlText: string, options: ImportLegacyOptions = {}): ProjectConfigV2 {
-  const document = parse(yamlText) as {
+  // YAML 1.2 core schema：`yes`/`no`/`on`/`off` 保持字符串，避免被当成布尔值。
+  const document = parse(yamlText, { version: '1.2', schema: 'core' }) as {
     version?: string | number;
     lang?: string;
     generators?: GeneratorConfig[];

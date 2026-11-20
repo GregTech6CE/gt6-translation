@@ -56,6 +56,7 @@ function dictPairCount(dict: Record<string, string | Record<string, string>>): n
 function detectCycles(edges: Map<string, Set<string>>): string[][] {
   const cycles = new Map<string, string[]>();
   const visiting = new Set<string>();
+  const visited = new Set<string>();
   const stack: string[] = [];
 
   const visit = (group: string) => {
@@ -70,17 +71,18 @@ function detectCycles(edges: Map<string, Set<string>>): string[][] {
         const pivot = body.indexOf([...body].sort()[0] ?? body[0] ?? '');
         const normalized = pivot > 0 ? body.slice(pivot).concat(body.slice(0, pivot)) : body;
         cycles.set(normalized.join('\u0000'), normalized.concat(normalized[0] ?? ''));
-      } else if (!visiting.has(next)) {
-        // 只沿已存在的组继续，缺少的组由 missingGroups 单独报告。
+      } else if (!visited.has(next)) {
+        // 只沿未完全探完的组继续，缺少的组由 missingGroups 单独报告。
         visit(next);
       }
     }
     stack.pop();
     visiting.delete(group);
+    visited.add(group);
   };
 
   for (const group of edges.keys()) {
-    if (!visiting.has(group)) visit(group);
+    if (!visited.has(group)) visit(group);
   }
   return [...cycles.values()];
 }
@@ -106,7 +108,7 @@ export function lintProject(config: ProjectConfigV2): LintReport {
 
     if (generator.complete !== undefined) {
       issues.push({
-        severity: 'info',
+        severity: 'error',
         code: 'legacy.complete-key',
         message: `组 ${group || '<空>'} 使用了 complete（单数）；C++ 只读取 completed，该键会被忽略`,
         path: `generators.${generatorIndex}.complete`,
@@ -114,7 +116,7 @@ export function lintProject(config: ProjectConfigV2): LintReport {
     }
     if (generator.extensions !== undefined) {
       issues.push({
-        severity: 'info',
+        severity: 'error',
         code: 'legacy.extensions-key',
         message: `组 ${group || '<空>'} 使用了 extensions（复数）；C++ 只读取 extension（单数），该键会被忽略`,
         path: `generators.${generatorIndex}.extensions`,
