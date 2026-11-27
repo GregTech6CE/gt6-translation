@@ -16,7 +16,7 @@
 | `gt6-official.md` | GT6 官网/论坛/GitHub/CHANGELOG | 一手材料定义、内部名、版本变更 |
 | `mod-localization-github.md` | 各 mod 与整合包的 GitHub 汉化 | 同名词译名、术语参考 |
 | `gt6tg-github.md` | 本仓库及前身（GT6TG / gregtech6-chinese-translation） | docs、issue、PR、release、commit 中的译名决策与历史 |
-| `mod-release-pages.md` | CurseForge / Modrinth / GitHub Releases / 特定 mod 发布站 | 模组版本、changelog、材料引入/改名/移除的版本证据 |
+| `mod-release-pages.md` | CurseForge / Modrinth / GitHub Releases / IC² 论坛 / 特定 mod 发布站 | 模组版本、changelog、材料引入/改名/移除的版本证据 |
 | `mod-wikis.md` | 小模组 Wiki 与指南（9Minecraft、ATL、dev.ftbwiki、AE2、TFC、HBM） | mod 原创材料、命名、配方与版本差异 |
 | `fiction-wikis.md` | 其他游戏/影视/文学作品 Wiki（Terraria、Team Fortress、Tolkien；Fandom/灰机子 Wiki 见对应平台页） | 虚构材料的名称、首次登场与设定 |
 | `real-world-databases.md` | Mindat / ATHENA / NIMRF / PubChem / POWO / Geology.com / JOGG | 现实矿物、植物、化合物、岩石、宝石数据库 |
@@ -29,7 +29,7 @@
 - 已重定向的旧域名（Gamepedia）保留独立文件用于迁移，但不算独立站点。
 - 单一材料的单篇新闻、评测、论文不单独成文件，作为材料条目的证据 URL 保留。
 
-规模（2026-10-31 统计）：17 个信源文件，去重后 67 个独立站点。按文件内条目逐条计为 72 条，多出的 5 条是跨文件登记：GTNH 中文站、TeamNED 本仓、CurseForge、FTB Wiki 各登记两次，Gamepedia 与 Fandom 同源。
+规模（2026-11-27 统计）：17 个信源文件，去重后 69 个独立站点。按文件内条目逐条计为 74 条，多出的 5 条是跨文件登记：GTNH 中文站、TeamNED 本仓、CurseForge、FTB Wiki 各登记两次，Gamepedia 与 Fandom 同源。
 
 ## 通用规则
 

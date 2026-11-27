@@ -7,6 +7,7 @@
 | CurseForge | https://www.curseforge.com/minecraft/mc-mods | mod 主页、Files、changelog | 页面可能下架或迁移 |
 | Modrinth | https://modrinth.com/mod | mod 主页、Versions、changelog | CurseForge 下架 mod 的替代页 |
 | GitHub Releases | `https://github.com/<owner>/<repo>/releases` | release/tag、jar、变更说明 | tag 与源码分支可能不同 |
+| IC² 官方论坛 | https://forum.industrial-craft.net/ | IC² 与 1.2.5–1.7.10 实验版附属（GT1–5、LevelStorage 等）首发帖与更新记录 | 早期未上 CurseForge 的附属材料常仅在此留档；引用具体 `thread`/`postID` |
 | 特定 mod 发布站 | 各 mod 作者官网 | 仅当上述页面缺失时使用 | 可能停更，注意版本 |
 
 ## 涵盖内容
@@ -26,4 +27,5 @@
   - CurseForge：mod 主页、Files、changelog；查版本和依赖。
   - Modrinth：mod 主页、Versions、changelog；查 CurseForge 下架 mod 的替代页。
   - GitHub Releases：源码仓库的 release/tag；查版本、jar、变更说明。
+  - IC² 官方论坛：1.2.5–1.7.10 时期 IC² 实验版附属（如 LevelStorage）的首发帖与开发者讨论。
   - 独立发布站：仅在该 mod 没有上述页面时使用，注意停更。

@@ -28,7 +28,7 @@
 | HBM's Nuclear Tech Mod | https://ntm.fandom.com/ | Red Copper（Minecraft Grade Copper / Mingrade）等命名与配方 | 以俄语为主，注意与 GT6 的 HBM 兼容名对应。 |
 | Hexxit | https://hexxit.fandom.com/wiki/Autumn_Woods | Extra Biomes XL 的 Autumn Woods / 秋树 | 整合包 Wiki，材料归属需回到 EBXL 本体确认。 |
 | Marvel Database | https://marvel.fandom.com | Adamantium、Vibranium 等条目与首次登场信息 | 用 api.php 取 wikitext；WebFetch 直接访问会 403。 |
-| Memory Alpha | https://memory-alpha.fandom.com | Star Trek 材料、元素、科技设定 | 用 api.php 取 wikitext；Tritanium / Duranium 等条目的首次登场信息。 |
+| Memory Alpha | https://memory-alpha.fandom.com | Star Trek 材料、元素、科技设定 | 用 api.php 取 wikitext；Tritanium / Duranium / Mercassium 等条目的首次登场信息。 |
 | Metallurgy 2 | https://metallurgy2.fandom.com/ | Carmot 等幻想金属 | 与 GT6 的 Metallurgy 兼容标签对照。 |
 | Mo'Creatures | https://mocreatures.fandom.com/wiki/OgreLair_Log | Ogre Lair / Wyvern Lair 木材与木板方块 | 模组方块名，不是现实树种。 |
 | Simple Ores 2 | https://simpleores.fandom.com/ | Thyrium、Sinisite、Mythril、Adamantium 等 | Alloys 页给出 Thyrium = Mythril + Adamantium。 |

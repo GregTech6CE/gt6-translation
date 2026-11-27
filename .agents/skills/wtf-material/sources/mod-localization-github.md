@@ -8,6 +8,9 @@
 - GTNH 中央汉化：https://github.com/GTNewHorizons/GTNH-Translations
   - 格雷相关中文：`zh_CN/GregTech_zh_CN.lang`
 - GTNH 整合包汉化（Kiwi233）：https://github.com/Kiwi233/Translation-of-GTNH
+- CFPA 社区中央模组汉化：https://github.com/CFPAOrg/Minecraft-Mod-Language-Package
+  - 主分支（多版本聚合）：`projects/assets/<mod>/<mc-ver>/<domain>/lang/`
+  - 历史归档分支：`archived-1.10.2`、`archived-1.12.2`、`archived-1.16` 等（路径形如 `projects/<mc-ver>/assets/<mod>/<domain>/lang/`）
 - TeamNED GT6 汉化：https://github.com/TeamNED/GregTech6-Translation-Groupware（仓库自身的 docs、issue、译名历史见 `gt6tg-github.md`）
 - 其他 GT6 汉化项目（可作旁证）：
   - https://github.com/TehporP/GregTech6-Translation-Project
@@ -22,6 +25,7 @@
 - 同名词在不同 mod/整合包里的中文译名。
 - 英文键 → 中文值的对照，可判断某个材料是否被某个 mod 使用。
 - GTNH 的 `zh_CN.lang` 覆盖大量 GT5U 材料，是“高版本材料中文名”的主要参考。
+- 源模组自身 GitHub 仓库内的 `assets/<modid>/lang/zh_CN.lang`（或 `zh_cn.json`）与 `OreDictionary.registerOre(...)` 注册代码，可同时锁定 `MT.UNUSED` 静默材料的真实出处与源模组自带官中（如 `wasliebob/FE2-1.7`）；单个模组仓库直接作为材料条目的证据 URL 引用，不逐仓重复建表。
 
 ## 注意事项
 
