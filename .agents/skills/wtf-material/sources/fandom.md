@@ -22,6 +22,7 @@
 | The Betweenlands | https://the-betweenlands.fandom.com/wiki/Middle_Gems | Middle Gems 等模组物品 | 与 MC百科交叉验证 Aqua / Crimson / Green Middle Gem 三色命名。 |
 | Biomes O' Plenty | https://biomesoplenty.fandom.com/wiki/Sacred_Oak | 1.12 树木/木材；Sacred Oak、Hellbark、Ethereal、Dark Wood 等 | 部分树名在 1.12 列表已变化，按版本核对。 |
 | CrazyOres | https://crazyores.fandom.com/ | Zectium、Starconium、Tapazite、Invisium、Osmonium、Luminite 等矿石 | 直接抓取常返回 403，可用 api.php 取 wikitext 或 browser use；mcmod.cn/class/27755 可补充。 |
+| DivineRPG | https://divine-rpg.fandom.com/ | Netherite Ingot（1.16+ 避撞原版更名 Torridite Ingot）等下界与异次元矿石 | 用 api.php 取 wikitext；GT6 将旧版 Netherite 改拼为 `Netheryte` 避撞。 |
 | Dragon Booster | https://dragonbooster.fandom.com/ | Draconium 等虚构能量矿物 | Draconium 作为虚构能量矿物的最早出处。 |
 | Fallout Wiki | https://fallout.fandom.com/ | Saturnite（Old World Blues）等《辐射》系列虚构材料与设定 | 用 api.php 取 wikitext；注意区分作品首发出处与 HBM 等模组兼容收录。 |
 | Final Fantasy | https://finalfantasy.fandom.com | Adamantite、Mythril 等系列物品/材料 | WebFetch 会 403；用 curl 带浏览器 UA 请求 api.php 取 wikitext。 |
@@ -31,7 +32,7 @@
 | Hexxit | https://hexxit.fandom.com/wiki/Autumn_Woods | Extra Biomes XL 的 Autumn Woods / 秋树 | 整合包 Wiki，材料归属需回到 EBXL 本体确认。 |
 | Marvel Database | https://marvel.fandom.com | Adamantium、Vibranium 等条目与首次登场信息 | 用 api.php 取 wikitext；WebFetch 直接访问会 403。 |
 | Memory Alpha | https://memory-alpha.fandom.com | Star Trek 材料、元素、科技设定 | 用 api.php 取 wikitext；Tritanium / Duranium / Mercassium 等条目的首次登场信息。 |
-| Metallurgy 2 | https://metallurgy2.fandom.com/ | Carmot 等幻想金属 | 与 GT6 的 Metallurgy 兼容标签对照。 |
+| Metallurgy 2 | https://metallurgy2.fandom.com/ | Carmot、Infuscolium、Eximite、Adamantine 等幻想金属 | 与 GT6 的 Metallurgy 兼容标签对照；1.7.10/1.12.2 官中见 `TeamMetallurgy/Metallurgy4` 与 `Davoleo/Metallurgy-4-Reforged`。 |
 | Mo'Creatures | https://mocreatures.fandom.com/wiki/OgreLair_Log | Ogre Lair / Wyvern Lair 木材与木板方块 | 模组方块名，不是现实树种。 |
 | Simple Ores 2 | https://simpleores.fandom.com/ | Thyrium、Sinisite、Mythril、Adamantium 等 | Alloys 页给出 Thyrium = Mythril + Adamantium。 |
 | Stargate | https://stargate.fandom.com | naquadah、naquadria、trinium 等材料 | 用 api.php；注意 Naquadria 是同位素而非化合物。 |
