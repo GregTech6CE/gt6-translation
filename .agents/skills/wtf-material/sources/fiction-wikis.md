@@ -8,7 +8,7 @@
 | Team Fortress Wiki | https://wiki.teamfortress.com/wiki/Australium | Team Fortress 2 物品/材料（Australium） | 官方 Wiki，单作品范围 |
 | Tolkien Gateway | https://tolkiengateway.net | 中土设定、mithril 等材料 | 粉丝维护，引用具体条目 |
 
-Fandom 上的作品子 Wiki（Memory Alpha、Stargate、Marvel、Final Fantasy、Dragon Booster）见 `fandom.md` 的“子 Wiki”段；灰机 Wiki 的作品站见 `huijiwiki.md`；Minecraft 原版 Wiki 见 `minecraft-wiki.md`；小模组 Wiki 见 `mod-wikis.md`。
+Fandom 上的作品子 Wiki（Memory Alpha、Stargate、Marvel、Final Fantasy、Fallout、Futurama、Dragon Booster）见 `fandom.md` 的“子 Wiki”段；灰机 Wiki 的作品站见 `huijiwiki.md`；Minecraft 原版 Wiki 见 `minecraft-wiki.md`；小模组 Wiki 见 `mod-wikis.md`。
 
 ## 涵盖内容
 

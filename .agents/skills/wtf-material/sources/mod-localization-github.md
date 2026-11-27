@@ -25,7 +25,7 @@
 - 同名词在不同 mod/整合包里的中文译名。
 - 英文键 → 中文值的对照，可判断某个材料是否被某个 mod 使用。
 - GTNH 的 `zh_CN.lang` 覆盖大量 GT5U 材料，是“高版本材料中文名”的主要参考。
-- 源模组自身 GitHub 仓库内的 `assets/<modid>/lang/zh_CN.lang`（或 `zh_cn.json`）与 `OreDictionary.registerOre(...)` 注册代码，可同时锁定 `MT.UNUSED` 静默材料的真实出处与源模组自带官中（如 `wasliebob/FE2-1.7`）；单个模组仓库直接作为材料条目的证据 URL 引用，不逐仓重复建表。
+- 源模组自身 GitHub 仓库内的 `assets/<modid>/lang/zh_CN.lang`（或 `zh_cn.json`）与 `OreDictionary.registerOre(...)` 注册代码，可同时锁定 `MT.UNUSED` 静默材料的真实出处与源模组自带官中（如 `wasliebob/FE2-1.7`、`HbmMods/Hbm-s-Nuclear-Tech-GIT`、`erogenousbeef/BigReactors`）；单个模组仓库直接作为材料条目的证据 URL 引用，不逐仓重复建表。
 
 ## 注意事项
 
@@ -34,4 +34,5 @@
 - 汉化可能滞后于英文源，键名可能已改名或删除；对照时用同一个 commit/版本。
 - GTNH 是 GT5U 体系，不是 GT6；只能作术语参考。
 - 注意仓库许可证；引用链接，不复制大段内容。
+- 1.7.10 源模组内置 `zh_CN.lang` 有时沿用元素符号或天体简称（如 HBM 将 `Euphemium`/`Schrabidium`/`Saturnite` 作 `Ep`/`Sa326`/`土星`），而后续拓展版或社区百科另有中文通译（如 `优铼`/`闪铼`/`土星合金`）；对账时可据此还原旧语料来源并说明取舍。
 - 用 GitHub 代码搜索时限定仓库和路径，例如 `repo:GTNewHorizons/GT5-Unofficial path:lang Tritanium`。
