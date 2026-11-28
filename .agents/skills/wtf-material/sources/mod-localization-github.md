@@ -7,7 +7,9 @@
   - 中文：`src/main/resources/assets/gregtech/lang/zh_CN.lang`
 - GTNH 中央汉化：https://github.com/GTNewHorizons/GTNH-Translations
   - 格雷相关中文：`zh_CN/GregTech_zh_CN.lang`
+  - 外部附属模组中文：`zh_CN/config/txloader/load/<Mod>[<modid>]/lang/zh_CN.lang`（如 `GalaxySpace[galaxyspace]/lang/zh_CN.lang`）
   - 外部附属历史英文/多语种留档：`daily-history/resources/<Mod>[<modid>]/lang/`（可回查新版已移除槽位的 1.7.10 附属键，如旧版 `GalaxySpace` 1.1.x 的 `OberonAdamantiteOre`）
+- GTNH 核心魔改与矿辞桥接：https://github.com/GTNewHorizons/NewHorizonsCoreMod（`src/main/java/com/dreammaster/gthandler/GT_Loader_OreDictionary.java` 与 `scripts/` 记录外部模组物品并入 GT5U `Materials.*` 的矿辞归并关系，可核实为何 GT5U 未注册某材料但附属模组与 GT5U 共用同一中文译名，如 `GalaxySpace` 的 `Adamantite` 直接绑入 `Materials.Adamantium`「精金」）
 - GTNH 整合包汉化（Kiwi233）：https://github.com/Kiwi233/Translation-of-GTNH（`resources/<Mod>[<modid>]/lang/zh_CN.lang` 含 1.7.10 附属模组汉化）
 - CFPA 社区中央模组汉化：https://github.com/CFPAOrg/Minecraft-Mod-Language-Package
   - 主分支（多版本聚合）：`projects/assets/<mod>/<mc-ver>/<domain>/lang/`

@@ -56,6 +56,7 @@
 - `git log -S '<材料名>' -- packages/legacy/workplace`：找译名或原文的改动。
 - `git log --grep='<材料名>' -i`：找提交说明里的讨论。
 - `git blame packages/legacy/workplace/zh/GregTech.lang`：定位某一行的最后修改提交。
+- 前身仓库首份语言提交 `d39011d`（2016-06-01 `add gregtech.lang`）：保存了继承自 Amamiya 组的初始语料基线，可快速区分 2016 年建仓前带入的 1.6.4/早期 1.7.10 社区旧译（如整套《冶金 3》民间汉化）与 2016–2021 年随版本新增的译名。对前身仓库做 `--filter=blob:none` 克隆时，避免直接对巨型 `GregTech.lang` 跑全历史 `git log -S`，优先直接抽检 `d39011d` 等边界提交或 release tag。
 
 ## 注意事项
 
